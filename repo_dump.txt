@@ -1,0 +1,4026 @@
+===== .env.dist =====
+REACT_APP_SPOTIFY_CLIENT_ID=
+REACT_APP_SPOTIFY_REDIRECT_URL=http://localhost:3000
+
+===== .gitignore =====
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+.editorconfig
+.prettierrc.json
+src/**/*.css.map
+
+
+===== Dockerfile =====
+
+ARG REACT_APP_SPOTIFY_CLIENT_ID
+ARG REACT_APP_SPOTIFY_REDIRECT_URL=http://localhost:3000/
+
+# build environment
+FROM node:18.12 as builder
+WORKDIR /usr/src/app
+COPY package.json yarn.lock ./
+RUN yarn install --only=production
+COPY . .
+RUN yarn run build
+
+# production environment
+FROM nginx:1.23.2-alpine
+RUN rm -rf /etc/nginx/conf.d
+COPY ./docker/nginx/default.conf /etc/nginx/conf.d/
+COPY --from=builder /usr/src/app/build /usr/share/nginx/html
+RUN chmod +r /usr/share/nginx/html/*
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+===== LICENSE =====
+MIT License
+
+Copyright (c) 2018 Franco Martín Borrelli
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+===== README.md =====
+<a href="https://spotify-react-web-client.onrender.com/" target="_blank">
+  <p align="center">
+    <img src="https://github.com/user-attachments/assets/726763a6-094a-42cf-878c-1e7d47a2e597" style="height: 250px"/>
+  </p>
+</a>
+
+<p align="center">
+
+<img src="https://img.shields.io/badge/Spotify-1ED760?style=for-the-badge&logo=spotify&logoColor=white" alt="Spotify Badge">
+<img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React Badge">
+<img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="Typescript Badge">
+<img src="https://img.shields.io/badge/redux-%23593d88.svg?style=for-the-badge&logo=redux&logoColor=white" alt="Redux Badge">
+
+</p>
+
+# 🎧 Spotify React Web Client
+
+> [!IMPORTANT]
+> Spotify Playback requires users to authenticate with a valid Spotify Premium subscription.
+
+![gif](https://github.com/user-attachments/assets/2077cdef-f3fa-49c9-a905-9cc9ab6629fb)
+
+## 🚀 Features
+
+⚡ **Music Playback**: Play songs in real-time using the Spotify Playback SDK.
+
+⚡ **Playback Controls**: Play, pause, next, previous, shuffle, and repeat functionalities.
+
+⚡ **Music Browsing**: Search and explore songs, artists, albums, and playlists.
+
+⚡ **Playlists Management**: Create, edit, and delete personalized playlists.
+
+⚡ **Saved Playlists and Albums Access**: View and play your saved playlists and albums.
+
+⚡ **Liked Songs**: Mark tracks as "liked" and access a dedicated playlist for liked songs.
+
+⚡ **Playback Devices**: Switch between different playback devices (desktop, mobile, smart speakers).
+
+⚡ **Follow/Unfollow Artists**: Follow and unfollow artists to get updates on their new releases.
+
+⚡ **Artist and Album Pages**: Dedicated pages for artists and albums, showcasing top songs, discography, and related artists.
+
+## 🛠 Technologies Used
+
+🎵 React: For building the user interface with reusable components.
+
+🎵 React Redux: For global state management and smooth data flow across the app.
+
+🎵 <a href="https://developer.spotify.com/documentation/web-api/">Spotify Web API</a>: To fetch data like playlists, albums, and user information.
+
+🎵 <a href="https://developer.spotify.com/documentation/web-playback-sdk/">Spotify Playback SDK</a>: For real-time music playback control within the web client.
+
+## 📸 Screenshots
+
+More in images [folder](https://github.com/francoborrelli/spotify-react-web-client/tree/main/images).
+
+<div align="center">
+    <table >
+     <tr>
+       <td>
+         <img src="images/Home.png?raw=true 'Playlist'"/>
+         <img src="images/CurrentDevices.png?raw=true 'Playlist'"/>
+       </td>
+        <td>
+         <img src="images/NewPlaylist.png?raw=true 'Playlist'"/>
+          <img src="images/browse.png?raw=true 'Playlist'"/>
+       </td>
+                 <td>
+         <img src="images/Profile.png?raw=true 'Playlist'"/>
+          <img src="images/playlist.png?raw=true 'Playlist'"/>
+       </td>
+     </tr>
+    </table>
+    </div>
+
+## ⚙️ Installation & Setup
+
+To run this project locally, follow these steps:
+
+1. Clone this repository:
+
+   ```bash
+   clone https://github.com/francoborrelli/spotify-react-web-client.git
+   ```
+
+2. Navigate to the project directory:
+
+   ```bash
+   cd spotify-react-web-client
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   yarn install
+   ```
+
+4. Set up your Spotify Developer account and create a [new app](https://developer.spotify.com/dashboard/applications) to obtain your **Client ID** and **Redirect URI**. Add these to an `.env` file in the root of your project:
+
+   ```
+   REACT_APP_SPOTIFY_CLIENT_ID=<your id>
+   REACT_APP_SPOTIFY_REDIRECT_URL=<your redirect uri>
+   ```
+
+5. Start the development server:
+
+   ```bash
+   yarn start
+   ```
+
+6. Open your browser and navigate to `http://localhost:3000`.
+
+## 🌐 2018 Version
+
+There is also a 2018 version of this Spotify clone, which features the Spotify UI from that year. You can find the code for that version in the [`main-2018`](https://github.com/francoborrelli/spotify-react-web-client/tree/main-2018) branch.
+
+- **2018 version branch**: [main-2018](https://github.com/francoborrelli/spotify-react-web-client/tree/main-2018)
+- **2018 live demo**: [Check out the app](https://spotify-react-web-client-2018.onrender.com/)
+
+Feel free to explore the older version and compare the features and functionality between the two versions.
+
+## 🤝 Contributions
+
+Contributions are welcome! If you have any suggestions or improvements, feel free to fork the repository, create a new branch, and submit a pull request.
+
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+
+===== docker-compose.yml =====
+services:
+  web:
+    build: .
+    env_file:
+      - .env
+    restart: always
+    container_name: 'spotify-web'
+    ports:
+      - 3000:80
+
+
+===== docker/nginx/default.conf =====
+##
+# `gzip` Settings
+#
+#
+gzip on;
+gzip_disable "msie6";
+
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+gzip_http_version 1.1;
+gzip_min_length 256;
+gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript application/vnd.ms-fontobject application/x-font-ttf font/opentype image/svg+xml image/x-icon;
+
+server {
+  listen 80;
+  location / {
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+    try_files $uri $uri/ /index.html;
+  }
+  error_page   500 502 503 504  /50x.html;
+  location = /50x.html {
+    root   /usr/share/nginx/html;
+  }
+}
+
+===== public/images/previous_song.svg =====
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="32" height="32" version="1.1" viewBox="0 0 8.4667 8.4667" xmlns="http://www.w3.org/2000/svg">
+ <g stroke="#FFF" fill="#FFF" stroke-linejoin="round">
+  <rect x="1.7693" y="1.4982" width="1.1415" height="5.7503" stroke-width=".265" style="paint-order:markers fill stroke"/>
+  <path transform="matrix(-.99689 0 0 1.111 8.7191 -.11223)" d="m6.2355 4.0095-4.4395 2.5917-0.024714-5.1406z" stroke-width=".265" style="paint-order:markers fill stroke"/>
+ </g>
+</svg>
+
+
+===== public/images/previous_song_hover.svg =====
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg width="32" height="32" version="1.1" viewBox="0 0 8.4667 8.4667" xmlns="http://www.w3.org/2000/svg">
+ <g stroke="#d1d5db" fill="#d1d5db" stroke-linejoin="round">
+  <rect x="1.7693" y="1.4982" width="1.1415" height="5.7503" stroke-width=".265" style="paint-order:markers fill stroke"/>
+  <path transform="matrix(-.99689 0 0 1.111 8.7191 -.11223)" d="m6.2355 4.0095-4.4395 2.5917-0.024714-5.1406z" stroke-width=".265" style="paint-order:markers fill stroke"/>
+ </g>
+</svg>
+
+
+===== public/index.html =====
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="theme-color" content="#000000" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" sizes="32x32" type="image/png" href="%PUBLIC_URL%/favicon32.png" />
+    <link rel="icon" sizes="16x16" type="image/png" href="%PUBLIC_URL%/favicon16.png" />
+    <title>Spotify Web Player</title>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script>
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        window.Spotify = Spotify;
+      };
+    </script>
+  </body>
+</html>
+
+
+===== public/manifest.json =====
+{
+  "short_name": "Spotify Client",
+  "name": "Spotify Client - Franco Borrelli",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
+
+
+===== src/App.tsx =====
+/* eslint-disable react-hooks/exhaustive-deps */
+import './styles/App.scss';
+
+// Utils
+import i18next from 'i18next';
+import { FC, Suspense, lazy, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { getFromLocalStorageWithExpiry } from './utils/localstorage';
+
+// Components
+import { ConfigProvider } from 'antd';
+import { AppLayout } from './components/Layout';
+import { Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
+
+// Redux
+import { Provider } from 'react-redux';
+import { uiActions } from './store/slices/ui';
+import { PersistGate } from 'redux-persist/integration/react';
+import { authActions, loginToSpotify } from './store/slices/auth';
+import { persistor, store, useAppDispatch, useAppSelector } from './store/store';
+
+// Spotify
+import WebPlayback, { WebPlaybackProps } from './utils/spotify/webPlayback';
+
+// Pages
+import SearchContainer from './pages/Search/Container';
+import { playerService } from './services/player';
+import { Spinner } from './components/spinner/spinner';
+
+const Home = lazy(() => import('./pages/Home'));
+const Page404 = lazy(() => import('./pages/404'));
+const AlbumView = lazy(() => import('./pages/Album'));
+const GenrePage = lazy(() => import('./pages/Genre'));
+const BrowsePage = lazy(() => import('./pages/Browse'));
+const ArtistPage = lazy(() => import('./pages/Artist'));
+const PlaylistView = lazy(() => import('./pages/Playlist'));
+const ArtistDiscographyPage = lazy(() => import('./pages/Discography'));
+
+const Profile = lazy(() => import('./pages/User/Home'));
+const ProfileTracks = lazy(() => import('./pages/User/Songs'));
+const ProfileArtists = lazy(() => import('./pages/User/Artists'));
+const ProfilePlaylists = lazy(() => import('./pages/User/Playlists'));
+
+const SearchPage = lazy(() => import('./pages/Search/Home'));
+const SearchTracks = lazy(() => import('./pages/Search/Songs'));
+const LikedSongsPage = lazy(() => import('./pages/LikedSongs'));
+const SearchAlbums = lazy(() => import('./pages/Search/Albums'));
+const SearchPlaylist = lazy(() => import('./pages/Search/Playlists'));
+const SearchPageArtists = lazy(() => import('./pages/Search/Artists'));
+const RecentlySearched = lazy(() => import('./pages/Search/RecentlySearched'));
+
+window.addEventListener('resize', () => {
+  const vh = window.innerWidth;
+  if (vh < 950) {
+    store.dispatch(uiActions.collapseLibrary());
+  }
+});
+
+const SpotifyContainer: FC<{ children: any }> = memo(({ children }) => {
+  const dispatch = useAppDispatch();
+
+  const user = useAppSelector((state) => !!state.auth.user);
+  const token = useAppSelector((state) => state.auth.token);
+  const requesting = useAppSelector((state) => state.auth.requesting);
+
+  useEffect(() => {
+    const tokenInLocalStorage = getFromLocalStorageWithExpiry('access_token');
+    dispatch(authActions.setToken({ token: tokenInLocalStorage }));
+
+    if (tokenInLocalStorage) {
+      dispatch(authActions.fetchUser());
+    } else {
+      dispatch(loginToSpotify(true));
+    }
+  }, [dispatch]);
+
+  const webPlaybackSdkProps: WebPlaybackProps = useMemo(
+    () => ({
+      playerAutoConnect: true,
+      playerInitialVolume: 1.0,
+      playerRefreshRateMs: 1000,
+      playerName: 'Spotify React Player',
+      onPlayerRequestAccessToken: () => Promise.resolve(token!),
+      onPlayerLoading: () => {},
+      onPlayerWaitingForDevice: () => {
+        dispatch(authActions.setPlayerLoaded({ playerLoaded: true }));
+      },
+      onPlayerError: (e) => {
+        dispatch(loginToSpotify(false));
+      },
+      onPlayerDeviceSelected: () => {
+        dispatch(authActions.setPlayerLoaded({ playerLoaded: true }));
+      },
+    }),
+    [dispatch, token]
+  );
+
+  if (!user) return <Spinner loading={requesting}>{children}</Spinner>;
+
+  return <WebPlayback {...webPlaybackSdkProps}>{children}</WebPlayback>;
+});
+
+const RoutesComponent = memo(() => {
+  const location = useLocation();
+  const container = useRef<HTMLDivElement>(null);
+  const user = useAppSelector((state) => !!state.auth.user);
+
+  useEffect(() => {
+    if (container.current) {
+      container.current.scrollTop = 0;
+    }
+  }, [location, container]);
+
+  const routes = useMemo(
+    () =>
+      [
+        { path: '', element: <Home container={container} />, public: true },
+        { path: '/collection/tracks', element: <LikedSongsPage container={container} /> },
+        {
+          public: true,
+          path: '/playlist/:playlistId',
+          element: <PlaylistView container={container} />,
+        },
+        { path: '/album/:albumId', element: <AlbumView container={container} /> },
+        {
+          path: '/artist/:artistId/discography',
+          element: <ArtistDiscographyPage container={container} />,
+        },
+        { public: true, path: '/artist/:artistId', element: <ArtistPage container={container} /> },
+        { path: '/users/:userId/artists', element: <ProfileArtists container={container} /> },
+        { path: '/users/:userId/playlists', element: <ProfilePlaylists container={container} /> },
+        { path: '/users/:userId/tracks', element: <ProfileTracks container={container} /> },
+        { path: '/users/:userId', element: <Profile container={container} /> },
+        { public: true, path: '/genre/:genreId', element: <GenrePage /> },
+        { public: true, path: '/search', element: <BrowsePage /> },
+        { path: '/recent-searches', element: <RecentlySearched /> },
+        {
+          public: true,
+          path: '/search/:search',
+          element: <SearchContainer container={container} />,
+          children: [
+            {
+              path: 'artists',
+              element: <SearchPageArtists container={container} />,
+            },
+            {
+              path: 'albums',
+              element: <SearchAlbums container={container} />,
+            },
+            {
+              path: 'playlists',
+              element: <SearchPlaylist container={container} />,
+            },
+            {
+              path: 'tracks',
+              element: <SearchTracks container={container} />,
+            },
+            {
+              path: '',
+              element: <SearchPage container={container} />,
+            },
+          ],
+        },
+        { path: '*', element: <Page404 /> },
+      ].filter((r) => (user ? true : r.public)),
+    [container, user]
+  );
+
+  return (
+    <div
+      className='Main-section'
+      ref={container}
+      style={{
+        height: user ? undefined : `calc(100vh - 50px)`,
+      }}
+    >
+      <div
+        style={{
+          minHeight: user ? 'calc(100vh - 230px)' : 'calc(100vh - 100px)',
+          width: '100%',
+        }}
+      >
+        <Routes>
+          {routes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={<Suspense>{route.element}</Suspense>}
+            >
+              {route?.children
+                ? route.children.map((child) => (
+                    <Route
+                      key={child.path}
+                      path={child.path}
+                      element={<Suspense>{child.element}</Suspense>}
+                    />
+                  ))
+                : undefined}
+            </Route>
+          ))}
+        </Routes>
+      </div>
+    </div>
+  );
+});
+
+const RootComponent = () => {
+  const user = useAppSelector((state) => !!state.auth.user);
+  const language = useAppSelector((state) => state.language.language);
+  const playing = useAppSelector((state) => !state.spotify.state?.paused);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('lang', language);
+    i18next.changeLanguage(language);
+  }, [language]);
+
+  const handleSpaceBar = useCallback(
+    (e: KeyboardEvent) => {
+      // @ts-ignore
+      if (e.target?.tagName?.toUpperCase() === 'INPUT') return;
+      if (playing === undefined) return;
+      e.stopPropagation();
+      if (e.key === ' ' || e.code === 'Space' || e.keyCode === 32) {
+        e.preventDefault();
+        const request = !playing ? playerService.startPlayback() : playerService.pausePlayback();
+        request.then().catch(() => {});
+      }
+    },
+    [playing]
+  );
+
+  useEffect(() => {
+    if (!user) return;
+    document.addEventListener('keydown', handleSpaceBar);
+    return () => {
+      document.removeEventListener('keydown', handleSpaceBar);
+    };
+  }, [user, handleSpaceBar]);
+
+  useEffect(() => {
+    if (!user) return;
+    const handleContextMenu = (e: any) => {
+      e.preventDefault();
+    };
+    document.addEventListener('contextmenu', handleContextMenu);
+    return () => {
+      document.removeEventListener('keydown', handleContextMenu);
+    };
+  }, [user]);
+
+  return (
+    <Router>
+      <AppLayout>
+        <RoutesComponent />
+      </AppLayout>
+    </Router>
+  );
+};
+
+function App() {
+  return (
+    <ConfigProvider theme={{ token: { fontFamily: 'SpotifyMixUI' } }}>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <SpotifyContainer>
+            <RootComponent />
+          </SpotifyContainer>
+        </PersistGate>
+      </Provider>
+    </ConfigProvider>
+  );
+}
+
+export default App;
+
+
+===== src/axios.ts =====
+import Axios from 'axios';
+import { getRefreshToken } from './utils/spotify/login';
+import { getFromLocalStorageWithExpiry } from './utils/localstorage';
+
+const path = 'https://api.spotify.com/v1' as const;
+
+const access_token = getFromLocalStorageWithExpiry('access_token') as string;
+
+const axios = Axios.create({
+  baseURL: path,
+  headers: {},
+});
+
+if (access_token) {
+  axios.defaults.headers.common['Authorization'] = 'Bearer ' + access_token;
+}
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response.status === 401) {
+      return getRefreshToken()
+        .then((token) => {
+          if (!token) return Promise.reject(error);
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+          error.config.headers['Authorization'] = 'Bearer ' + token;
+          return axios(error.config);
+        })
+        .catch(() => {
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('access_token');
+        });
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default axios;
+
+
+===== src/components/Actions/AddSongToLibrary.tsx =====
+import { FC } from 'react';
+
+import { Tooltip } from '../Tooltip';
+import { useTranslation } from 'react-i18next';
+import { userService } from '../../services/users';
+import { AddedToLibrary, AddToLibrary } from '../Icons';
+import { message } from 'antd';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { albumActions } from '../../store/slices/album';
+import { artistActions } from '../../store/slices/artist';
+import { playlistActions } from '../../store/slices/playlist';
+import { uiActions } from '../../store/slices/ui';
+
+const AddSongToLibrary: FC<{ id: string; onToggle: () => void; size?: number }> = ({
+  id,
+  size,
+  onToggle,
+}) => {
+  const { t } = useTranslation(['playlist']);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => !!state.auth.user);
+
+  const handleAddToLibrary = () => {
+    if (!user) {
+      dispatch(uiActions.openLoginButton());
+      return;
+    }
+    userService.saveTracks([id]).then(() => {
+      message.success(t('Song added to Liked Songs'));
+      onToggle();
+      dispatch(albumActions.updateTrackLikeState({ id: id!, saved: true }));
+      dispatch(artistActions.setTopSongLikeState({ id: id!, saved: true }));
+      dispatch(playlistActions.setTrackLikeState({ id: id!, saved: true }));
+    });
+  };
+
+  return (
+    <Tooltip title={t('Add to Liked Songs')}>
+      <button className='actions' onClick={handleAddToLibrary}>
+        <AddToLibrary height={size} width={size} />
+      </button>
+    </Tooltip>
+  );
+};
+
+const DeleteSongFromLibrary: FC<{ id: string; onToggle: () => void; size?: number }> = ({
+  id,
+  size,
+  onToggle,
+}) => {
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => !!state.auth.user);
+
+  const handleDeleteFromLibrary = () => {
+    if (!user) {
+      dispatch(uiActions.openLoginButton());
+      return;
+    }
+    userService.deleteTracks([id]).then(() => {
+      message.success(t('Song removed from Liked Songs'));
+      onToggle();
+      dispatch(albumActions.updateTrackLikeState({ id: id!, saved: false }));
+      dispatch(artistActions.setTopSongLikeState({ id: id!, saved: false }));
+      dispatch(playlistActions.setTrackLikeState({ id: id!, saved: false }));
+    });
+  };
+
+  return (
+    <Tooltip title={t('Remove from Liked Songs')}>
+      <button onClick={handleDeleteFromLibrary}>
+        <AddedToLibrary height={size} width={size} />
+      </button>
+    </Tooltip>
+  );
+};
+
+export const AddSongToLibraryButton = ({
+  id,
+  isSaved,
+  onToggle,
+  size = 24,
+}: {
+  id: string;
+  size?: number;
+  isSaved: boolean;
+  onToggle: () => void;
+}) => {
+  return isSaved ? (
+    <DeleteSongFromLibrary size={size} id={id} onToggle={onToggle} />
+  ) : (
+    <AddSongToLibrary size={size} id={id} onToggle={onToggle} />
+  );
+};
+
+
+===== src/components/Actions/AlbumActions.tsx =====
+import { FC, memo, useCallback, useMemo } from 'react';
+
+import { Dropdown, MenuProps, message } from 'antd';
+import { AddToQueueIcon, AddedToLibrary, AddToLibrary, AddToPlaylist } from '../Icons';
+
+// Services
+import { playerService } from '../../services/player';
+import { albumsService } from '../../services/albums';
+import { playlistService } from '../../services/playlists';
+
+// Utils
+import { useTranslation } from 'react-i18next';
+
+// Interface
+import type { Album } from '../../interfaces/albums';
+
+// Redux
+import { fetchQueue } from '../../store/slices/queue';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { fetchMyPlaylists, yourLibraryActions } from '../../store/slices/yourLibrary';
+import { uiActions } from '../../store/slices/ui';
+
+interface AlbumActionsWrapperProps {
+  album: Album;
+  isCurrent?: boolean;
+  trigger?: ('contextMenu' | 'click')[];
+  children: React.ReactNode | React.ReactNode[];
+}
+
+export const AlbumActionsWrapper: FC<AlbumActionsWrapperProps> = memo((props) => {
+  const { children, album } = props;
+
+  const { t } = useTranslation(['playlist']);
+
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user?.id);
+  const myAlbums = useAppSelector((state) => state.yourLibrary.myAlbums);
+  const myPlaylists = useAppSelector((state) => state.yourLibrary.myPlaylists);
+
+  const inLibrary = useMemo(() => {
+    return myAlbums.some((p) => p.id === album.id);
+  }, [myAlbums, album.id]);
+
+  const handleUserValidation = useCallback(
+    (button?: boolean) => {
+      if (!user) {
+        dispatch(button ? uiActions.openLoginButton() : uiActions.openLoginTooltip());
+        return false;
+      }
+      return true;
+    },
+    [dispatch, user]
+  );
+
+  const options = useMemo(() => {
+    const items: any[] = myPlaylists.map((p) => {
+      return {
+        key: p.id,
+        label: p.name,
+        onClick: async () => {
+          if (!handleUserValidation()) return;
+          const {
+            data: { items: tracks },
+          } = await albumsService.fetchAlbumTracks(album.id);
+          const uris = tracks.map((t) => t.uri);
+          playlistService.addPlaylistItems(p!.id, uris, p?.snapshot_id!).then(() => {
+            message.open({
+              type: 'success',
+              content: t('Added to playlist'),
+            });
+          });
+        },
+      };
+    });
+
+    if (myPlaylists.length) {
+      items.unshift({ type: 'divider' });
+    }
+
+    items.unshift({
+      label: t('New playlist'),
+      key: 'new',
+      onClick: async () => {
+        if (!handleUserValidation()) return;
+        const {
+          data: { items: tracks },
+        } = await albumsService.fetchAlbumTracks(album.id);
+        const uris = tracks.map((t) => t.uri);
+        return playlistService.createPlaylist(user!, { name: album.name }).then((response) => {
+          const playlist = response.data;
+          playlistService.addPlaylistItems(playlist.id, uris, playlist.snapshot_id!).then(() => {
+            dispatch(fetchMyPlaylists());
+            message.success(t('Added to playlist'));
+          });
+        });
+      },
+    });
+
+    return items;
+  }, [myPlaylists, t, handleUserValidation, album.id, album.name, user, dispatch]);
+
+  const items = useMemo(() => {
+    const items: MenuProps['items'] = [];
+
+    if (inLibrary) {
+      items.push({
+        label: t('Remove from Your Library'),
+        key: 9,
+        icon: <AddedToLibrary style={{ height: 16, width: 16, marginInlineEnd: 0 }} />,
+        onClick: () => {
+          if (!handleUserValidation(true)) return;
+          albumsService.deleteAlbums([album.id]).then(() => {
+            dispatch(yourLibraryActions.fetchMyAlbums());
+            message.open({
+              type: 'success',
+              content: t('Removed from Your Library'),
+            });
+          });
+        },
+      });
+    } else {
+      items.push({
+        label: t('Add to Your Library'),
+        key: 8,
+        icon: <AddToLibrary style={{ height: 16, width: 16, marginInlineEnd: 0 }} />,
+        onClick: () => {
+          if (!handleUserValidation(true)) return;
+          albumsService.saveAlbums([album.id]).then(() => {
+            dispatch(yourLibraryActions.fetchMyAlbums());
+            message.open({
+              type: 'success',
+              content: t('Saved to Your Library'),
+            });
+          });
+        },
+      });
+    }
+
+    items.push(
+      {
+        label: t('Add to queue'),
+        key: '3',
+        disabled: true,
+        icon: <AddToQueueIcon />,
+        onClick: () => {
+          if (!handleUserValidation()) return;
+          playerService.addToQueue(album.uri).then(() => {
+            dispatch(fetchQueue());
+            message.open({
+              type: 'success',
+              content: t('Added to queue'),
+            });
+          });
+        },
+      },
+      { type: 'divider' },
+      {
+        label: t('Add to playlist'),
+        icon: <AddToPlaylist />,
+        key: '1',
+        children: options,
+      }
+    );
+
+    return items;
+  }, [album.id, album.uri, dispatch, handleUserValidation, inLibrary, options, t]);
+
+  return (
+    <Dropdown menu={{ items }} trigger={props.trigger}>
+      {children}
+    </Dropdown>
+  );
+});
+
+
+===== src/components/Actions/ArtistActions.tsx =====
+import { FC, memo, useCallback, useMemo } from 'react';
+
+import { Dropdown, MenuProps, message } from 'antd';
+import { FollowIcon, UnfollowIcon } from '../Icons';
+
+// Utils
+import { useTranslation } from 'react-i18next';
+
+// Interface
+import type { Artist, SimpleArtist } from '../../interfaces/artist';
+
+// Redux
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { userService } from '../../services/users';
+import { yourLibraryActions } from '../../store/slices/yourLibrary';
+import { uiActions } from '../../store/slices/ui';
+
+interface ArtistActionsWrapperProps {
+  artist: Artist | Spotify.Track['artists'][0] | SimpleArtist;
+  onRefresh?: () => void;
+  trigger?: ('contextMenu' | 'click')[];
+  children: React.ReactNode | React.ReactNode[];
+}
+
+export const ArtistActionsWrapper: FC<ArtistActionsWrapperProps> = memo((props) => {
+  const { children, artist } = props;
+
+  const { t } = useTranslation(['playlist']);
+
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => !!state.auth.user);
+  const myArtists = useAppSelector((state) => state.yourLibrary.myArtists);
+
+  const handleUserValidation = useCallback(() => {
+    if (!user) {
+      dispatch(uiActions.openLoginTooltip());
+      return false;
+    }
+    return true;
+  }, [dispatch, user]);
+
+  const inLibrary = useMemo(() => {
+    // @ts-ignore
+    const id = artist.id || artist.uri?.split(':').reverse()[0];
+    return myArtists.some((p) => p.id === id);
+  }, [myArtists, artist]);
+
+  const items = useMemo(() => {
+    const items: MenuProps['items'] = [];
+    // @ts-ignore
+    const id = artist.id || artist.uri?.split(':').reverse()[0];
+
+    if (inLibrary) {
+      items.push({
+        key: 'remove',
+        label: t('Unfollow'),
+        icon: <UnfollowIcon />,
+        onClick: async () => {
+          if (!handleUserValidation()) return;
+          userService.unfollowArtists([id]).then(() => {
+            message.success(t('Artist unfollowed'));
+            dispatch(yourLibraryActions.fetchMyArtists());
+          });
+        },
+      });
+    } else {
+      items.push({
+        key: 'add',
+        label: t('Follow'),
+        icon: <FollowIcon />,
+        onClick: async () => {
+          if (!handleUserValidation()) return;
+          userService.followArtists([id]).then(() => {
+            message.success(t('Artist followed'));
+            dispatch(yourLibraryActions.fetchMyArtists());
+          });
+        },
+      });
+    }
+
+    return items;
+  }, [artist, dispatch, handleUserValidation, inLibrary, t]);
+
+  return (
+    <Dropdown menu={{ items }} trigger={props.trigger}>
+      {children}
+    </Dropdown>
+  );
+});
+
+
+===== src/components/Actions/PlaylistActions.tsx =====
+import { FC, memo, useCallback, useMemo } from 'react';
+import { FaLock, FaUnlock } from 'react-icons/fa6';
+import { Dropdown, MenuProps, message } from 'antd';
+import { DeleteIcon, AddToQueueIcon, EditIcon, AddedToLibrary, AddToLibrary } from '../Icons';
+
+// Services
+import { userService } from '../../services/users';
+import { playerService } from '../../services/player';
+import { playlistService } from '../../services/playlists';
+
+// Utils
+import { useTranslation } from 'react-i18next';
+
+// Interface
+import type { Playlist } from '../../interfaces/playlists';
+
+// Redux
+import { uiActions } from '../../store/slices/ui';
+import { fetchQueue } from '../../store/slices/queue';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { yourLibraryActions } from '../../store/slices/yourLibrary';
+import { editPlaylistModalActions } from '../../store/slices/editPlaylistModal';
+
+interface PlayistActionsWrapperProps {
+  playlist: Playlist;
+  isCurrent?: boolean;
+  onRefresh?: () => void;
+  trigger?: ('contextMenu' | 'click')[];
+  children: React.ReactNode | React.ReactNode[];
+}
+
+export const PlayistActionsWrapper: FC<PlayistActionsWrapperProps> = memo((props) => {
+  const { children, playlist } = props;
+
+  const { t } = useTranslation(['playlist']);
+
+  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => state.auth.user?.id);
+  const myPlaylists = useAppSelector((state) => state.yourLibrary.myPlaylists);
+  const canEdit = useMemo(() => userId === playlist.owner?.id, [userId, playlist.owner?.id]);
+
+  const handleUserValidation = useCallback(
+    (button?: boolean) => {
+      if (!userId) {
+        dispatch(button ? uiActions.openLoginButton() : uiActions.openLoginTooltip());
+        return false;
+      }
+      return true;
+    },
+    [dispatch, userId]
+  );
+
+  const inLibrary = useMemo(() => {
+    return myPlaylists.some((p) => p.id === playlist.id);
+  }, [myPlaylists, playlist.id]);
+
+  const items = useMemo(() => {
+    const items: MenuProps['items'] = [];
+
+    if (canEdit) {
+      items.push(
+        {
+          label: t('Edit details'),
+          key: 1,
+          icon: <EditIcon />,
+          onClick: () => {
+            if (!handleUserValidation()) return;
+            dispatch(editPlaylistModalActions.setPlaylist({ playlist }));
+          },
+        },
+        {
+          label: t('Delete playlist'),
+          key: '2',
+          disabled: true,
+          icon: <DeleteIcon />,
+        },
+        {
+          type: 'divider',
+        }
+      );
+
+      if (playlist.public) {
+        items.push({
+          label: t('Make private'),
+          key: 4,
+          icon: <FaLock size={16} fill='#bababa' style={{ padding: 0, marginInlineEnd: 0 }} />,
+          onClick: () => {
+            if (!handleUserValidation()) return;
+            return playlistService
+              .changePlaylistDetails(playlist.id, { public: false })
+              .then(() => {
+                props.onRefresh?.();
+                message.open({
+                  type: 'success',
+                  content: t('Playlist is now private'),
+                });
+              });
+          },
+        });
+      } else {
+        items.push({
+          label: t('Make public'),
+          key: 5,
+          icon: <FaUnlock size={16} fill='#bababa' style={{ padding: 0, marginInlineEnd: 0 }} />,
+          onClick: () => {
+            if (!handleUserValidation()) return;
+            return playlistService
+              .changePlaylistDetails(playlist.id, { public: true, collaborative: false })
+              .then(() => {
+                props.onRefresh?.();
+                message.open({
+                  type: 'success',
+                  content: t('Playlist is now public'),
+                });
+              });
+          },
+        });
+      }
+    } else {
+      if (inLibrary) {
+        items.push(
+          {
+            label: t('Remove from Your Library'),
+            key: 9,
+            icon: <AddedToLibrary style={{ height: 16, width: 16, marginInlineEnd: 0 }} />,
+            onClick: () => {
+              if (!handleUserValidation()) return;
+              return userService.unfollowPlaylist(playlist.id).then(() => {
+                dispatch(yourLibraryActions.fetchMyPlaylists());
+                message.open({
+                  type: 'success',
+                  content: t('Removed from Your Library'),
+                });
+              });
+            },
+          },
+          {
+            type: 'divider',
+          }
+        );
+      } else {
+        items.push(
+          {
+            label: t('Add to Your Library'),
+            key: 8,
+            icon: <AddToLibrary style={{ height: 16, width: 16, marginInlineEnd: 0 }} />,
+            onClick: () => {
+              if (!handleUserValidation(true)) return;
+              return userService.followPlaylist(playlist.id).then(() => {
+                dispatch(yourLibraryActions.fetchMyPlaylists());
+                message.open({
+                  type: 'success',
+                  content: t('Saved to Your Library'),
+                });
+              });
+            },
+          },
+          {
+            type: 'divider',
+          }
+        );
+      }
+    }
+
+    items.push({
+      label: t('Add to queue'),
+      key: '3',
+      disabled: true,
+      icon: <AddToQueueIcon />,
+      onClick: () => {
+        if (!handleUserValidation()) return;
+        return playerService.addToQueue(playlist.uri).then(() => {
+          dispatch(fetchQueue());
+          message.open({
+            type: 'success',
+            content: t('Added to queue'),
+          });
+        });
+      },
+    });
+
+    return items;
+  }, [canEdit, dispatch, handleUserValidation, inLibrary, playlist, props, t]);
+
+  return (
+    <Dropdown menu={{ items }} trigger={props.trigger}>
+      {children}
+    </Dropdown>
+  );
+});
+
+
+===== src/components/Actions/TrackActions.tsx =====
+import { FC, memo, useCallback, useMemo } from 'react';
+
+import {
+  AlbumIcon,
+  ArtistIcon,
+  DeleteIcon,
+  AddToPlaylist,
+  AddToQueueIcon,
+  AddToLibrary,
+  AddedToLibrary,
+} from '../Icons';
+import { Dropdown, MenuProps, message } from 'antd';
+
+// Services
+import { playerService } from '../../services/player';
+import { playlistService } from '../../services/playlists';
+
+// Utils
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+
+// Interface
+import type { Track } from '../../interfaces/track';
+import type { Album } from '../../interfaces/albums';
+import type { Playlist } from '../../interfaces/playlists';
+
+// Redux
+import { fetchQueue } from '../../store/slices/queue';
+import { playlistActions } from '../../store/slices/playlist';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import {
+  fetchMyPlaylists,
+  getUserPlaylists,
+  yourLibraryActions,
+} from '../../store/slices/yourLibrary';
+import { userService } from '../../services/users';
+import { likedSongsActions } from '../../store/slices/likedSongs';
+import { spotifyActions } from '../../store/slices/spotify';
+import { albumActions } from '../../store/slices/album';
+import { artistActions } from '../../store/slices/artist';
+import { Artist } from '../../interfaces/artist';
+import { uiActions } from '../../store/slices/ui';
+
+interface TrackActionsWrapperProps {
+  canEdit?: boolean;
+  saved?: boolean;
+  album?: Album | null;
+  artist?: Artist | null;
+  onSavedToggle?: () => void;
+  playlist?: Playlist | null;
+  track: Track | Spotify.Track;
+  trigger?: ('contextMenu' | 'click')[];
+  children: React.ReactNode | React.ReactNode[];
+}
+
+export const TrackActionsWrapper: FC<TrackActionsWrapperProps> = memo((props) => {
+  const { children, artist, track, playlist, canEdit, album, saved, onSavedToggle } = props;
+
+  const { t } = useTranslation(['playlist']);
+
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const myPlaylists = useAppSelector(getUserPlaylists);
+  const userId = useAppSelector((state) => state.auth.user?.id);
+  const currentSong = useAppSelector(
+    (state) => state.spotify.state?.track_window?.current_track?.id
+  );
+
+  const handleUserValidation = useCallback(
+    (button?: boolean) => {
+      if (!userId) {
+        dispatch(button ? uiActions.openLoginButton() : uiActions.openLoginTooltip());
+        return false;
+      }
+      return true;
+    },
+    [dispatch, userId]
+  );
+
+  const options = useMemo(() => {
+    return myPlaylists
+      .filter((p) => p.id !== playlist?.id)
+      .map((p) => {
+        return {
+          key: p.id,
+          label: p.name,
+          onClick: () => {
+            if (!handleUserValidation()) return;
+            playlistService.addPlaylistItems(p!.id, [track.uri], p?.snapshot_id!).then(() => {
+              dispatch(playlistActions.refreshTracks(playlist!.id));
+              message.open({
+                type: 'success',
+                content: t('Added to playlist'),
+              });
+            });
+          },
+        };
+      });
+  }, [myPlaylists, playlist, handleUserValidation, track.uri, dispatch, t]);
+
+  const getItems = () => {
+    const items: MenuProps['items'] = [
+      {
+        label: t('Add to playlist'),
+        icon: <AddToPlaylist />,
+        key: '1',
+        children: [
+          {
+            label: t('New playlist'),
+            key: 'new',
+            onClick: () => {
+              if (!handleUserValidation()) return;
+              return playlistService
+                .createPlaylist(userId!, { name: track.name })
+                .then((response) => {
+                  const playlist = response.data;
+                  playlistService
+                    .addPlaylistItems(playlist.id, [track.uri], playlist.snapshot_id!)
+                    .then(() => {
+                      dispatch(fetchMyPlaylists());
+                      message.success(t('Added to playlist'));
+                    });
+                });
+            },
+          },
+          { type: 'divider' },
+          ...options,
+        ],
+      },
+    ];
+
+    if (saved !== undefined) {
+      items.push({
+        label: saved ? t('Remove from Liked Songs') : t('Save to Liked Songs'),
+        key: '4',
+        icon: saved ? (
+          <AddedToLibrary style={{ height: 18, width: 18, marginInlineEnd: 0 }} />
+        ) : (
+          <AddToLibrary style={{ height: 18, width: 18, marginInlineEnd: 0 }} />
+        ),
+        onClick: () => {
+          if (!handleUserValidation(true)) return;
+          if (saved) {
+            userService.deleteTracks([track.id!]).then(() => {
+              dispatch(likedSongsActions.removeSong({ id: track.id! }));
+              dispatch(albumActions.updateTrackLikeState({ id: track.id!, saved: false }));
+              dispatch(artistActions.setTopSongLikeState({ id: track.id!, saved: false }));
+              dispatch(playlistActions.setTrackLikeState({ id: track.id!, saved: false }));
+
+              if (currentSong === track.id) {
+                dispatch(spotifyActions.setLiked({ liked: false }));
+              }
+
+              if (onSavedToggle) onSavedToggle();
+              message.open({
+                type: 'success',
+                content: t('Removed from Liked Songs'),
+              });
+            });
+          } else {
+            userService.saveTracks([track.id!]).then(() => {
+              if (onSavedToggle) onSavedToggle();
+
+              dispatch(albumActions.updateTrackLikeState({ id: track.id!, saved: true }));
+              dispatch(artistActions.setTopSongLikeState({ id: track.id!, saved: true }));
+              dispatch(playlistActions.setTrackLikeState({ id: track.id!, saved: true }));
+
+              dispatch(likedSongsActions.fetchLikeSongs());
+
+              if (currentSong === track.id) {
+                dispatch(spotifyActions.setLiked({ liked: true }));
+              }
+
+              message.open({
+                type: 'success',
+                content: t('Saved to Liked Songs'),
+              });
+            });
+          }
+        },
+      });
+    }
+
+    if (canEdit && playlist) {
+      items.push({
+        label: t('Remove from this playlist'),
+        key: '2',
+        icon: <DeleteIcon />,
+        onClick: () => {
+          if (!handleUserValidation()) return;
+          return playlistService
+            .removePlaylistItems(playlist!.id, [track.uri], playlist?.snapshot_id!)
+            .then(() => {
+              dispatch(playlistActions.refreshPlaylist(playlist!.id));
+              dispatch(playlistActions.removeTrack({ id: track.uri }));
+              dispatch(yourLibraryActions.fetchMyPlaylists());
+              message.open({
+                type: 'success',
+                content: t('Removed from playlist'),
+              });
+            });
+        },
+      });
+    }
+
+    items.push(
+      {
+        label: t('Add to queue'),
+        key: '3',
+        icon: <AddToQueueIcon />,
+        onClick: () => {
+          if (!handleUserValidation(true)) return;
+          return playerService.addToQueue(track.uri).then(() => {
+            dispatch(fetchQueue());
+            message.open({
+              type: 'success',
+              content: t('Added to queue'),
+            });
+          });
+        },
+      },
+      { type: 'divider' }
+    );
+
+    if (!artist) {
+      items.push({
+        label: t('Go to artist'),
+        key: '5',
+        icon: <ArtistIcon />,
+        onClick: () => {
+          navigate(
+            // @ts-ignore
+            `/artist/${track.artists[0]?.id || track.artists[0].uri.split(':').reverse()[0]}`
+          );
+        },
+      });
+    }
+
+    if (!album) {
+      items.push({
+        label: t('Go to album'),
+        key: '6',
+        icon: <AlbumIcon />,
+        onClick: () => {
+          if (!userId) {
+            return dispatch(uiActions.openLoginModal(track.album.images[0].url));
+          }
+          // @ts-ignore
+          navigate(`/album/${track.album?.id || track.album.uri.split(':').reverse()[0]}`);
+        },
+      });
+    }
+
+    return items;
+  };
+
+  const items = getItems();
+
+  return (
+    <>
+      <Dropdown menu={{ items }} trigger={props.trigger}>
+        {children}
+      </Dropdown>
+    </>
+  );
+});
+
+
+===== src/components/Button/index.tsx =====
+import { FC, memo } from 'react';
+
+interface ButtonProps {
+  title: string;
+  onClick: () => void;
+  size?: 'default' | 'small';
+}
+
+export const WhiteButton: FC<ButtonProps> = memo((props) => {
+  return (
+    <button onClick={props.onClick} className={`white-button ${props.size}`}>
+      <span>{props.title}</span>
+    </button>
+  );
+});
+
+WhiteButton.displayName = 'WhiteButton';
+
+
+===== src/components/Chip/index.tsx =====
+import { FC, memo, ReactNode } from 'react';
+
+interface ChipProps {
+  active?: boolean;
+  onClick?: () => void;
+  text: string | ReactNode;
+}
+
+export const Chip: FC<ChipProps> = memo((props) => {
+  const { text, active, onClick } = props;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`chip ${active ? 'active' : ''}`}
+      role='checkbox'
+      aria-checked='false'
+      data-encore-id='chip'
+      style={{
+        marginBlockEnd: '0px',
+        willChange: 'transform, opacity',
+      }}
+      data-roving-interactive='1'
+    >
+      <span>{text}</span>
+    </button>
+  );
+});
+
+Chip.displayName = 'Chip';
+
+export default Chip;
+
+
+===== src/components/Drawers/LibraryDrawer.tsx =====
+import { memo, useLayoutEffect, useState } from 'react';
+
+// Components
+import { Drawer } from 'antd';
+
+// Redux
+import { useAppSelector } from '../../store/store';
+import YourLibrary from '../Layout/components/Library/list';
+
+function useWindowSize() {
+  const [size, setSize] = useState([0, 0]);
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+}
+
+export const LibraryDrawer = memo(() => {
+  const [width] = useWindowSize();
+
+  const open = useAppSelector((state) => !state.ui.libraryCollapsed);
+
+  if (width > 900) return null;
+
+  return (
+    <div className='playing-now-drawer'>
+      <Drawer open={open}>
+        <YourLibrary />
+      </Drawer>
+    </div>
+  );
+});
+
+LibraryDrawer.displayName = 'LibraryDrawer';
+
+
+===== src/components/Drawers/PlayingNowDrawer.tsx =====
+import { memo, useLayoutEffect, useState } from 'react';
+
+// Components
+import { Drawer } from 'antd';
+import { PlayingNow } from '../Layout/components/NowPlaying';
+
+// Redux
+import { useAppSelector } from '../../store/store';
+import { isRightLayoutOpen } from '../../store/slices/ui';
+
+function useWindowSize() {
+  const [size, setSize] = useState([0, 0]);
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+}
+
+export const PlayingNowDrawer = memo(() => {
+  const [width] = useWindowSize();
+
+  const open = useAppSelector(isRightLayoutOpen);
+
+  if (width > 900) return null;
+
+  return (
+    <div className='playing-now-drawer'>
+      <Drawer open={open}>
+        <PlayingNow />
+      </Drawer>
+    </div>
+  );
+});
+
+PlayingNowDrawer.displayName = 'PlayingNowDrawer';
+
+
+===== src/components/FullScreen/Album.tsx =====
+import { memo } from 'react';
+import { useAppSelector } from '../../store/store';
+import { ArtistActionsWrapper } from '../Actions/ArtistActions';
+import { Link } from 'react-router-dom';
+
+const AlbumSongDetails = memo(() => {
+  const currentSong = useAppSelector(
+    (state) => state.spotify.state?.track_window.current_track,
+    (a, b) => a?.id === b?.id
+  );
+
+  if (!currentSong) return <></>;
+
+  return (
+    <div className='flex flex-row items-center'>
+      <img alt='Album Cover' className='album-cover' src={`${currentSong?.album.images[0].url}`} />
+      <div id='song-and-artist-name'>
+        <p className='text-white font-bold song-title' title={currentSong?.name}>
+          {currentSong?.name}
+        </p>
+        <p
+          className='text-gray-200 song-artist'
+          title={currentSong?.artists.map((a) => a.name).join(', ')}
+        >
+          {currentSong?.artists.slice(0, 3).map((a, i) => (
+            <span key={a.uri}>
+              <ArtistActionsWrapper artist={a} trigger={['contextMenu']}>
+                <Link target='_blank' to={`/artist/${a.uri.split(':').reverse()[0]}`}>
+                  {a.name}
+                </Link>
+              </ArtistActionsWrapper>
+              {i < currentSong.artists.slice(0, 3).length - 1 && ', '}
+            </span>
+          ))}
+        </p>
+      </div>
+    </div>
+  );
+});
+
+AlbumSongDetails.displayName = 'FullScreenAlbumSongDetails';
+
+export default AlbumSongDetails;
+
+
+===== src/components/FullScreen/index.tsx =====
+import { Col, Row, Space } from 'antd';
+import AlbumSongDetails from './Album';
+import { ExpandOutIcon } from '../Icons';
+import VolumeControls from '../Layout/components/PlayingBar/Volume';
+import ControlButtons from '../Layout/components/PlayingBar/ControlButtons';
+import SongProgressBar from '../Layout/components/PlayingBar/SongProgressBar';
+
+import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Tooltip } from '../Tooltip';
+import { AddSongToLibraryButton } from '../Actions/AddSongToLibrary';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { spotifyActions } from '../../store/slices/spotify';
+
+interface FullScreenPlayerProps {
+  onExit: () => Promise<void>;
+}
+
+const ExpandOutButton: FC<FullScreenPlayerProps> = (props) => {
+  const [t] = useTranslation(['playingBar']);
+  return (
+    <Tooltip title={t('Exit full screen')}>
+      <button title={t('Exit full screen')} style={{ marginLeft: 20 }} onClick={props.onExit}>
+        <ExpandOutIcon />
+      </button>
+    </Tooltip>
+  );
+};
+
+const AddToLibrary = () => {
+  const dispatch = useAppDispatch();
+  const song = useAppSelector(
+    (state) => state.spotify.state?.track_window.current_track,
+    (a, b) => a?.id === b?.id
+  );
+  const isLiked = useAppSelector((state) => state.spotify.liked);
+
+  const handleToggle = () => {
+    dispatch(spotifyActions.setLiked({ liked: !isLiked }));
+  };
+
+  return (
+    <AddSongToLibraryButton size={20} isSaved={isLiked} id={song?.id!} onToggle={handleToggle} />
+  );
+};
+
+export const FullScreenPlayer: FC<FullScreenPlayerProps> = (props) => {
+  return (
+    <div className='Full-screen-page'>
+      <div></div>
+      <div style={{ width: '100%', padding: 60 }}>
+        <Row gutter={[24, 24]} justify='center' style={{ alignItems: 'baseline' }}>
+          <Col span={24}>
+            <AlbumSongDetails />
+          </Col>
+          <Col span={24}>
+            <SongProgressBar />
+          </Col>
+          <Col span={8}>
+            <AddToLibrary />
+          </Col>
+          <Col span={8}>
+            <ControlButtons />
+          </Col>
+          <Col span={8} style={{ textAlign: 'end' }}>
+            <Space>
+              <VolumeControls />
+              <ExpandOutButton onExit={props.onExit} />
+            </Space>
+          </Col>
+        </Row>
+      </div>
+    </div>
+  );
+};
+
+FullScreenPlayer.displayName = 'FullScreenPlayer';
+
+
+===== src/components/Icons/index.tsx =====
+const ControlStyle = {
+  cursor: 'pointer',
+  fill: '#bababa',
+  height: '1.15em',
+  verticalAlign: '-.125em',
+  transformOrigin: 'center',
+  overflow: 'visible',
+} as React.CSSProperties;
+
+const SongExtraControlStyle = {
+  ...ControlStyle,
+  height: '1.2em',
+  maxWidth: 17,
+} as React.CSSProperties;
+
+export const HomeIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    width='24'
+    height='24'
+    stroke='#b3b3b3'
+    fill='#b3b3b3'
+    strokeWidth='0'
+  >
+    <path d='M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-6h-3v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z'></path>
+  </svg>
+);
+
+export const ActiveHomeIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    width='24'
+    height='24'
+    stroke='#fff'
+    fill='#fff'
+    strokeWidth='0'
+  >
+    <path d='M13.5 1.515a3 3 0 0 0-3 0L3 5.845a2 2 0 0 0-1 1.732V21a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V7.577a2 2 0 0 0-1-1.732l-7.5-4.33z'></path>
+  </svg>
+);
+
+export const BrowseIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    width='24'
+    height='24'
+    stroke='#b3b3b3'
+    fill='#b3b3b3'
+    strokeWidth='0'
+    className='hoverable-icon'
+  >
+    <path d='M15 15.5c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z'></path>
+    <path d='M1.513 9.37A1 1 0 0 1 2.291 9h19.418a1 1 0 0 1 .979 1.208l-2.339 11a1 1 0 0 1-.978.792H4.63a1 1 0 0 1-.978-.792l-2.339-11a1 1 0 0 1 .201-.837zM3.525 11l1.913 9h13.123l1.913-9H3.525zM4 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v4h-2V3H6v3H4V2z'></path>
+  </svg>
+);
+
+export const SearchIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    width='24'
+    height='24'
+    stroke='#b3b3b3'
+    fill='#b3b3b3'
+    strokeWidth='0'
+    {...props}
+  >
+    <path d='M10.533 1.27893C5.35215 1.27893 1.12598 5.41887 1.12598 10.5579C1.12598 15.697 5.35215 19.8369 10.533 19.8369C12.767 19.8369 14.8235 19.0671 16.4402 17.7794L20.7929 22.132C21.1834 22.5226 21.8166 22.5226 22.2071 22.132C22.5976 21.7415 22.5976 21.1083 22.2071 20.7178L17.8634 16.3741C19.1616 14.7849 19.94 12.7634 19.94 10.5579C19.94 5.41887 15.7138 1.27893 10.533 1.27893ZM3.12598 10.5579C3.12598 6.55226 6.42768 3.27893 10.533 3.27893C14.6383 3.27893 17.94 6.55226 17.94 10.5579C17.94 14.5636 14.6383 17.8369 10.533 17.8369C6.42768 17.8369 3.12598 14.5636 3.12598 10.5579Z'></path>
+  </svg>
+);
+
+export const LibraryIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    width='24'
+    height='24'
+    stroke='#b3b3b3'
+    fill='#b3b3b3'
+    strokeWidth='0'
+    className='hoverable-icon'
+  >
+    <path d='M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 1 0 2 0V3a1 1 0 0 0-1-1z'></path>
+  </svg>
+);
+
+export const LibraryCollapsedIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    width='25'
+    height='25'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    stroke='#b3b3b3'
+    fill='#b3b3b3'
+    strokeWidth='0'
+    className='hoverable-icon'
+  >
+    <path d='M14.5 2.134a1 1 0 0 1 1 0l6 3.464a1 1 0 0 1 .5.866V21a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1V3a1 1 0 0 1 .5-.866zM16 4.732V20h4V7.041l-4-2.309zM3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zm6 0a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1z'></path>
+  </svg>
+);
+
+export const ShuffleIcon = (props: { active: boolean }) => {
+  const { active, ...otherProps } = props;
+  return (
+    <svg
+      {...otherProps}
+      style={ControlStyle}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      className={`hoverable-icon replay ${active ? 'active' : ''}`}
+    >
+      <path d='M13.151.922a.75.75 0 1 0-1.06 1.06L13.109 3H11.16a3.75 3.75 0 0 0-2.873 1.34l-6.173 7.356A2.25 2.25 0 0 1 .39 12.5H0V14h.391a3.75 3.75 0 0 0 2.873-1.34l6.173-7.356a2.25 2.25 0 0 1 1.724-.804h1.947l-1.017 1.018a.75.75 0 0 0 1.06 1.06L15.98 3.75 13.15.922zM.391 3.5H0V2h.391c1.109 0 2.16.49 2.873 1.34L4.89 5.277l-.979 1.167-1.796-2.14A2.25 2.25 0 0 0 .39 3.5z'></path>
+      <path d='m7.5 10.723.98-1.167.957 1.14a2.25 2.25 0 0 0 1.724.804h1.947l-1.017-1.018a.75.75 0 1 1 1.06-1.06l2.829 2.828-2.829 2.828a.75.75 0 1 1-1.06-1.06L13.109 13H11.16a3.75 3.75 0 0 1-2.873-1.34l-.787-.938z'></path>
+    </svg>
+  );
+};
+
+export const SkipBack = () => (
+  <svg
+    style={ControlStyle}
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+  >
+    <path d='M3.3 1a.7.7 0 0 1 .7.7v5.15l9.95-5.744a.7.7 0 0 1 1.05.606v12.575a.7.7 0 0 1-1.05.607L4 9.149V14.3a.7.7 0 0 1-.7.7H1.7a.7.7 0 0 1-.7-.7V1.7a.7.7 0 0 1 .7-.7h1.6z'></path>
+  </svg>
+);
+
+export const SkipNext = () => {
+  return (
+    <svg
+      style={ControlStyle}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      className='hoverable-icon'
+    >
+      <path d='M12.7 1a.7.7 0 0 0-.7.7v5.15L2.05 1.107A.7.7 0 0 0 1 1.712v12.575a.7.7 0 0 0 1.05.607L12 9.149V14.3a.7.7 0 0 0 .7.7h1.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-1.6z'></path>
+    </svg>
+  );
+};
+
+export const Replay = (props: { active: boolean }) => {
+  const { active, ...otherProps } = props;
+  return (
+    <svg
+      {...otherProps}
+      style={ControlStyle}
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      data-encore-id='icon'
+      className={`hoverable-icon replay ${active ? 'active' : ''}`}
+    >
+      <path d='M0 4.75A3.75 3.75 0 0 1 3.75 1h8.5A3.75 3.75 0 0 1 16 4.75v5a3.75 3.75 0 0 1-3.75 3.75H9.81l1.018 1.018a.75.75 0 1 1-1.06 1.06L6.939 12.75l2.829-2.828a.75.75 0 1 1 1.06 1.06L9.811 12h2.439a2.25 2.25 0 0 0 2.25-2.25v-5a2.25 2.25 0 0 0-2.25-2.25h-8.5A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75v-5z'></path>
+    </svg>
+  );
+};
+
+export const ReplayOne = (props: { active: boolean }) => {
+  const { active, ...otherProps } = props;
+
+  return (
+    <svg
+      {...otherProps}
+      style={ControlStyle}
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      data-encore-id='icon'
+      className={`hoverable-icon replay ${active ? 'active' : ''}`}
+    >
+      <path d='M0 4.75A3.75 3.75 0 0 1 3.75 1h.75v1.5h-.75A2.25 2.25 0 0 0 1.5 4.75v5A2.25 2.25 0 0 0 3.75 12H5v1.5H3.75A3.75 3.75 0 0 1 0 9.75v-5ZM12.25 2.5a2.25 2.25 0 0 1 2.25 2.25v5A2.25 2.25 0 0 1 12.25 12H9.81l1.018-1.018a.75.75 0 0 0-1.06-1.06L6.939 12.75l2.829 2.828a.75.75 0 1 0 1.06-1.06L9.811 13.5h2.439A3.75 3.75 0 0 0 16 9.75v-5A3.75 3.75 0 0 0 12.25 1h-.75v1.5h.75Z'></path>
+      <path d='m8 1.85.77.694H6.095V1.488c.697-.051 1.2-.18 1.507-.385.316-.205.51-.51.583-.913h1.32V8H8V1.85Z'></path>
+      <path d='M8.77 2.544 8 1.85v.693h.77Z'></path>
+    </svg>
+  );
+};
+
+export const Pause = () => (
+  <svg
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    data-encore-id='icon'
+    style={{ ...ControlStyle, fill: 'black' }}
+  >
+    <path d='M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6z'></path>
+  </svg>
+);
+
+export const Play = () => (
+  <svg
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    data-encore-id='icon'
+    style={{ ...ControlStyle, fill: 'black' }}
+  >
+    <path d='M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z'></path>
+  </svg>
+);
+
+export const News = () => (
+  <svg
+    style={ControlStyle}
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+  >
+    <path d='M8 1.5a4 4 0 0 0-4 4v3.27a.75.75 0 0 1-.1.373L2.255 12h11.49L12.1 9.142a.75.75 0 0 1-.1-.374V5.5a4 4 0 0 0-4-4zm-5.5 4a5.5 5.5 0 0 1 11 0v3.067l2.193 3.809a.75.75 0 0 1-.65 1.124H10.5a2.5 2.5 0 0 1-5 0H.957a.75.75 0 0 1-.65-1.124L2.5 8.569V5.5zm4.5 8a1 1 0 1 0 2 0H7z'></path>
+  </svg>
+);
+
+export const Heart = () => (
+  <svg
+    height={20}
+    xmlns='http://www.w3.org/2000/svg'
+    viewBox='0 0 189.2 87.507'
+    style={{ overflow: 'visible' }}
+  >
+    <g id='hearts' transform='translate(-787.902 -454.998)'>
+      <g id='right-hearts'>
+        <g id='Group_4' data-name='Group 4' opacity='0.484'>
+          <path
+            id='Path_8'
+            data-name='Path 8'
+            d='M36.508,16.436c-3.141,6.041-11.545,14.257-16.3,18.634a1.342,1.342,0,0,1-1.8,0C13.633,30.693,5.229,22.477,2.087,16.436c-6.9-13.29,10.5-22.151,17.21-8.86C26.01-5.715,43.409,3.146,36.508,16.436Z'
+            transform='translate(936.502 486.145)'
+            fill='#fff'
+          />
+          <path
+            id='Path_9'
+            data-name='Path 9'
+            d='M19.311,37.916a3.836,3.836,0,0,1-2.575-.99l-.013-.012C11.871,32.47,3.229,24.051-.131,17.589A15.428,15.428,0,0,1-2,10.374,12.021,12.021,0,0,1-.282,4.2,11.848,11.848,0,0,1,16.364.456a13.647,13.647,0,0,1,2.934,2.6,13.649,13.649,0,0,1,2.934-2.6A11.848,11.848,0,0,1,38.879,4.2,12.02,12.02,0,0,1,40.6,10.374a15.428,15.428,0,0,1-1.87,7.214A52.812,52.812,0,0,1,30.8,28.07c-3.2,3.482-6.607,6.728-8.9,8.839l-.018.017a3.836,3.836,0,0,1-2.571.99ZM9.864,3.5A6.907,6.907,0,0,0,3.991,6.8c-1.423,2.342-1.311,5.357.315,8.489,1.013,1.948,4.482,7.467,15,17.213,2.172-2.025,5.076-4.836,7.815-7.813a48.2,48.2,0,0,0,7.166-9.4c1.626-3.131,1.738-6.146.315-8.488a6.848,6.848,0,0,0-9.644-2.149A10.185,10.185,0,0,0,21.529,8.7L19.3,13.121,17.066,8.7a10.185,10.185,0,0,0-3.432-4.057A6.906,6.906,0,0,0,9.864,3.5Z'
+            transform='translate(936.502 486.145)'
+            fill='#fff'
+          />
+        </g>
+        <g id='Group_5' data-name='Group 5' opacity='0.484'>
+          <path
+            id='Path_10'
+            data-name='Path 10'
+            d='M36.508,16.436c-3.141,6.041-11.545,14.257-16.3,18.634a1.342,1.342,0,0,1-1.8,0C13.633,30.693,5.229,22.477,2.087,16.436c-6.9-13.29,10.5-22.151,17.21-8.86C26.01-5.715,43.409,3.146,36.508,16.436Z'
+            transform='translate(906.04 497.584)'
+            fill='#64d26d'
+          />
+          <path
+            id='Path_11'
+            data-name='Path 11'
+            d='M19.311,37.916a3.836,3.836,0,0,1-2.575-.99l-.013-.012C11.871,32.47,3.229,24.051-.131,17.589A15.428,15.428,0,0,1-2,10.374,12.021,12.021,0,0,1-.282,4.2,11.848,11.848,0,0,1,16.364.456a13.647,13.647,0,0,1,2.934,2.6,13.649,13.649,0,0,1,2.934-2.6A11.848,11.848,0,0,1,38.879,4.2,12.02,12.02,0,0,1,40.6,10.374a15.428,15.428,0,0,1-1.87,7.214A52.812,52.812,0,0,1,30.8,28.07c-3.2,3.482-6.607,6.728-8.9,8.839l-.018.017a3.836,3.836,0,0,1-2.571.99ZM9.864,3.5A6.907,6.907,0,0,0,3.991,6.8c-1.423,2.342-1.311,5.357.315,8.489,1.013,1.948,4.482,7.467,15,17.213,2.172-2.025,5.076-4.836,7.815-7.813a48.2,48.2,0,0,0,7.166-9.4c1.626-3.131,1.738-6.146.315-8.488a6.848,6.848,0,0,0-9.644-2.149A10.185,10.185,0,0,0,21.529,8.7L19.3,13.121,17.066,8.7a10.185,10.185,0,0,0-3.432-4.057A6.906,6.906,0,0,0,9.864,3.5Z'
+            transform='translate(906.04 497.584)'
+            fill='#64d26d'
+          />
+        </g>
+      </g>
+      <g id='left-hearts'>
+        <g id='Group_6' data-name='Group 6' opacity='0.484'>
+          <path
+            id='Path_12'
+            data-name='Path 12'
+            d='M36.508,16.436c-3.141,6.041-11.545,14.257-16.3,18.634a1.342,1.342,0,0,1-1.8,0C13.633,30.693,5.229,22.477,2.087,16.436c-6.9-13.29,10.5-22.151,17.21-8.86C26.01-5.715,43.409,3.146,36.508,16.436Z'
+            transform='translate(827.502 483.705)'
+            fill='#fff'
+          />
+          <path
+            id='Path_13'
+            data-name='Path 13'
+            d='M19.311,37.916a3.836,3.836,0,0,1-2.575-.99l-.013-.012C11.871,32.47,3.229,24.051-.131,17.589A15.428,15.428,0,0,1-2,10.374,12.021,12.021,0,0,1-.282,4.2,11.848,11.848,0,0,1,16.364.456a13.647,13.647,0,0,1,2.934,2.6,13.649,13.649,0,0,1,2.934-2.6A11.848,11.848,0,0,1,38.879,4.2,12.02,12.02,0,0,1,40.6,10.374a15.428,15.428,0,0,1-1.87,7.214A52.812,52.812,0,0,1,30.8,28.07c-3.2,3.482-6.607,6.728-8.9,8.839l-.018.017a3.836,3.836,0,0,1-2.571.99ZM9.864,3.5A6.907,6.907,0,0,0,3.991,6.8c-1.423,2.342-1.311,5.357.315,8.489,1.013,1.948,4.482,7.467,15,17.213,2.172-2.025,5.076-4.836,7.815-7.813a48.2,48.2,0,0,0,7.166-9.4c1.626-3.131,1.738-6.146.315-8.488a6.848,6.848,0,0,0-9.644-2.149A10.185,10.185,0,0,0,21.529,8.7L19.3,13.121,17.066,8.7a10.185,10.185,0,0,0-3.432-4.057A6.906,6.906,0,0,0,9.864,3.5Z'
+            transform='translate(827.502 483.705)'
+            fill='#fff'
+          />
+        </g>
+        <g id='Group_7' data-name='Group 7' opacity='0.484'>
+          <path
+            id='Path_14'
+            data-name='Path 14'
+            d='M36.508,16.436c-3.141,6.041-11.545,14.257-16.3,18.634a1.342,1.342,0,0,1-1.8,0C13.633,30.693,5.229,22.477,2.087,16.436c-6.9-13.29,10.5-22.151,17.21-8.86C26.01-5.715,43.409,3.146,36.508,16.436Z'
+            transform='translate(789.902 456.497)'
+            fill='#64d26d'
+          />
+          <path
+            id='Path_15'
+            data-name='Path 15'
+            d='M19.311,37.916a3.836,3.836,0,0,1-2.575-.99l-.013-.012C11.871,32.47,3.229,24.051-.131,17.589A15.428,15.428,0,0,1-2,10.374,12.021,12.021,0,0,1-.282,4.2,11.848,11.848,0,0,1,16.364.456a13.647,13.647,0,0,1,2.934,2.6,13.649,13.649,0,0,1,2.934-2.6A11.848,11.848,0,0,1,38.879,4.2,12.02,12.02,0,0,1,40.6,10.374a15.428,15.428,0,0,1-1.87,7.214A52.812,52.812,0,0,1,30.8,28.07c-3.2,3.482-6.607,6.728-8.9,8.839l-.018.017a3.836,3.836,0,0,1-2.571.99ZM9.864,3.5A6.907,6.907,0,0,0,3.991,6.8c-1.423,2.342-1.311,5.357.315,8.489,1.013,1.948,4.482,7.467,15,17.213,2.172-2.025,5.076-4.836,7.815-7.813a48.2,48.2,0,0,0,7.166-9.4c1.626-3.131,1.738-6.146.315-8.488a6.848,6.848,0,0,0-9.644-2.149A10.185,10.185,0,0,0,21.529,8.7L19.3,13.121,17.066,8.7a10.185,10.185,0,0,0-3.432-4.057A6.906,6.906,0,0,0,9.864,3.5Z'
+            transform='translate(789.902 456.497)'
+            fill='#64d26d'
+          />
+        </g>
+      </g>
+      <g id='center-heart'>
+        <path
+          id='inner'
+          data-name='Path 16'
+          d='M68.82,30.286C62.86,41.748,46.92,57.336,37.9,65.639a2.547,2.547,0,0,1-3.413,0c-9.068-8.3-25.012-23.892-30.972-35.353C-9.578,5.07,23.432-11.741,36.167,13.475,48.9-11.741,81.912,5.07,68.82,30.286Z'
+          transform='translate(853.502 473.705)'
+          fill='#64d26d'
+        />
+        <path
+          id='outer'
+          data-name='Path 17'
+          d='M36.192,68.8a5.038,5.038,0,0,1-3.382-1.3l-.013-.012C28.5,63.55,22.1,57.47,16,50.84,8.968,43.21,4.022,36.682,1.3,31.439A27.058,27.058,0,0,1-2,18.8,20.564,20.564,0,0,1,.934,8.233,20.236,20.236,0,0,1,29.375,1.847a24.62,24.62,0,0,1,6.792,6.728,24.623,24.623,0,0,1,6.791-6.728A20.236,20.236,0,0,1,71.4,8.233,20.562,20.562,0,0,1,74.336,18.8a27.059,27.059,0,0,1-3.3,12.641c-2.723,5.236-7.666,11.763-14.693,19.4C50.32,57.389,43.909,63.5,39.592,67.478l-.018.017A5.038,5.038,0,0,1,36.192,68.8Zm-.029-5.01a.047.047,0,0,0,.057,0c4.247-3.912,10.543-9.916,16.446-16.332C59.4,40.14,64.084,33.976,66.6,29.132a22.135,22.135,0,0,0,2.734-10.306A15.233,15.233,0,0,0,45.688,6.037,21.52,21.52,0,0,0,38.4,14.6l-2.232,4.418L33.935,14.6a21.521,21.521,0,0,0-7.289-8.566A15.231,15.231,0,0,0,3,18.827,22.133,22.133,0,0,0,5.732,29.134c2.522,4.85,7.213,11.014,13.941,18.319,5.982,6.495,12.268,12.465,16.491,16.333Z'
+          transform='translate(853.502 473.705)'
+          fill='#64d26d'
+        />
+      </g>
+    </g>
+  </svg>
+);
+
+export const DetailsIcon = (props: { active: boolean }) => {
+  const { active, ...otherProps } = props;
+  return (
+    <svg
+      {...otherProps}
+      style={SongExtraControlStyle}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      className={`hoverable-icon replay ${active ? 'active' : ''}`}
+    >
+      <path d='M11.196 8 6 5v6l5.196-3z'></path>
+      <path d='M15.002 1.75A1.75 1.75 0 0 0 13.252 0h-10.5a1.75 1.75 0 0 0-1.75 1.75v12.5c0 .966.783 1.75 1.75 1.75h10.5a1.75 1.75 0 0 0 1.75-1.75V1.75zm-1.75-.25a.25.25 0 0 1 .25.25v12.5a.25.25 0 0 1-.25.25h-10.5a.25.25 0 0 1-.25-.25V1.75a.25.25 0 0 1 .25-.25h10.5z'></path>
+    </svg>
+  );
+};
+
+export const MicrophoneIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M13.426 2.574a2.831 2.831 0 0 0-4.797 1.55l3.247 3.247a2.831 2.831 0 0 0 1.55-4.797zM10.5 8.118l-2.619-2.62A63303.13 63303.13 0 0 0 4.74 9.075L2.065 12.12a1.287 1.287 0 0 0 1.816 1.816l3.06-2.688 3.56-3.129zM7.12 4.094a4.331 4.331 0 1 1 4.786 4.786l-3.974 3.493-3.06 2.689a2.787 2.787 0 0 1-3.933-3.933l2.676-3.045 3.505-3.99z'></path>
+  </svg>
+);
+
+export const ListIcon = (props: { active?: boolean }) => {
+  const { active, ...otherProps } = props;
+  return (
+    <svg
+      {...otherProps}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      style={SongExtraControlStyle}
+      className={`hoverable-icon replay ${active ? 'active' : ''}`}
+    >
+      <path d='M15 15H1v-1.5h14V15zm0-4.5H1V9h14v1.5zm-14-7A2.5 2.5 0 0 1 3.5 1h9a2.5 2.5 0 0 1 0 5h-9A2.5 2.5 0 0 1 1 3.5zm2.5-1a1 1 0 0 0 0 2h9a1 1 0 1 0 0-2h-9z'></path>
+    </svg>
+  );
+};
+
+export const DeviceIcon = (props: { active?: boolean }) => {
+  return (
+    <svg
+      data-encore-id='icon'
+      role='presentation'
+      aria-hidden='true'
+      style={SongExtraControlStyle}
+      viewBox='0 0 16 16'
+      className={`hoverable-icon replay ${props.active ? 'active' : ''}`}
+    >
+      <path d='M6 2.75C6 1.784 6.784 1 7.75 1h6.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0 1 14.25 15h-6.5A1.75 1.75 0 0 1 6 13.25V2.75zm1.75-.25a.25.25 0 0 0-.25.25v10.5c0 .138.112.25.25.25h6.5a.25.25 0 0 0 .25-.25V2.75a.25.25 0 0 0-.25-.25h-6.5zm-6 0a.25.25 0 0 0-.25.25v6.5c0 .138.112.25.25.25H4V11H1.75A1.75 1.75 0 0 1 0 9.25v-6.5C0 1.784.784 1 1.75 1H4v1.5H1.75zM4 15H2v-1.5h2V15z'></path>
+      <path d='M13 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm-1-5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z'></path>
+    </svg>
+  );
+};
+
+export const ExpandIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M6.53 9.47a.75.75 0 0 1 0 1.06l-2.72 2.72h1.018a.75.75 0 0 1 0 1.5H1.25v-3.579a.75.75 0 0 1 1.5 0v1.018l2.72-2.72a.75.75 0 0 1 1.06 0zm2.94-2.94a.75.75 0 0 1 0-1.06l2.72-2.72h-1.018a.75.75 0 1 1 0-1.5h3.578v3.579a.75.75 0 0 1-1.5 0V3.81l-2.72 2.72a.75.75 0 0 1-1.06 0z'></path>
+  </svg>
+);
+
+export const VolumeIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='presentation'
+    aria-label='Volumen alto'
+    aria-hidden='true'
+    id='volume-icon'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M9.741.85a.75.75 0 0 1 .375.65v13a.75.75 0 0 1-1.125.65l-6.925-4a3.642 3.642 0 0 1-1.33-4.967 3.639 3.639 0 0 1 1.33-1.332l6.925-4a.75.75 0 0 1 .75 0zm-6.924 5.3a2.139 2.139 0 0 0 0 3.7l5.8 3.35V2.8l-5.8 3.35zm8.683 4.29V5.56a2.75 2.75 0 0 1 0 4.88z'></path>
+    <path d='M11.5 13.614a5.752 5.752 0 0 0 0-11.228v1.55a4.252 4.252 0 0 1 0 8.127v1.55z'></path>
+  </svg>
+);
+
+export const VolumeMuteIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='presentation'
+    aria-label='Volumen apagado'
+    aria-hidden='true'
+    id='volume-icon'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M13.86 5.47a.75.75 0 0 0-1.061 0l-1.47 1.47-1.47-1.47A.75.75 0 0 0 8.8 6.53L10.269 8l-1.47 1.47a.75.75 0 1 0 1.06 1.06l1.47-1.47 1.47 1.47a.75.75 0 0 0 1.06-1.06L12.39 8l1.47-1.47a.75.75 0 0 0 0-1.06z'></path>
+    <path d='M10.116 1.5A.75.75 0 0 0 8.991.85l-6.925 4a3.642 3.642 0 0 0-1.33 4.967 3.639 3.639 0 0 0 1.33 1.332l6.925 4a.75.75 0 0 0 1.125-.649v-1.906a4.73 4.73 0 0 1-1.5-.694v1.3L2.817 9.852a2.141 2.141 0 0 1-.781-2.92c.187-.324.456-.594.78-.782l5.8-3.35v1.3c.45-.313.956-.55 1.5-.694V1.5z'></path>
+  </svg>
+);
+
+export const VolumeOneIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='presentation'
+    aria-label='Volumen bajo'
+    aria-hidden='true'
+    id='volume-icon'
+    className='hoverable-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M9.741.85a.75.75 0 0 1 .375.65v13a.75.75 0 0 1-1.125.65l-6.925-4a3.642 3.642 0 0 1-1.33-4.967 3.639 3.639 0 0 1 1.33-1.332l6.925-4a.75.75 0 0 1 .75 0zm-6.924 5.3a2.139 2.139 0 0 0 0 3.7l5.8 3.35V2.8l-5.8 3.35zm8.683 4.29V5.56a2.75 2.75 0 0 1 0 4.88z'></path>
+  </svg>
+);
+
+export const VolumeTwoIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='presentation'
+    aria-label='Volumen medio'
+    aria-hidden='true'
+    id='volume-icon'
+    className='hoverable-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M9.741.85a.75.75 0 0 1 .375.65v13a.75.75 0 0 1-1.125.65l-6.925-4a3.642 3.642 0 0 1-1.33-4.967 3.639 3.639 0 0 1 1.33-1.332l6.925-4a.75.75 0 0 1 .75 0zm-6.924 5.3a2.139 2.139 0 0 0 0 3.7l5.8 3.35V2.8l-5.8 3.35zm8.683 6.087a4.502 4.502 0 0 0 0-8.474v1.65a2.999 2.999 0 0 1 0 5.175v1.649z'></path>
+  </svg>
+);
+
+export const Clock = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    style={SongExtraControlStyle}
+  >
+    <path d='M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z'></path>
+    <path d='M8 3.25a.75.75 0 0 1 .75.75v3.25H11a.75.75 0 0 1 0 1.5H7.25V4A.75.75 0 0 1 8 3.25z'></path>
+  </svg>
+);
+
+export const MenuDots = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    className='hoverable-icon'
+    style={{ ...ControlStyle, height: '2rem' }}
+  >
+    <path d='M4.5 13.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm15 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm-7.5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z'></path>
+  </svg>
+);
+
+export const WorldIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={{ ...ControlStyle, height: '1.2rem' }}
+  >
+    <path d='M8.152 16H8a8 8 0 1 1 .152 0zm-.41-14.202c-.226.273-.463.713-.677 1.323-.369 1.055-.626 2.496-.687 4.129h3.547c-.06-1.633-.318-3.074-.687-4.129-.213-.61-.45-1.05-.676-1.323-.194-.235-.326-.285-.385-.296h-.044c-.055.007-.19.052-.391.296zM4.877 7.25c.062-1.771.34-3.386.773-4.624.099-.284.208-.554.329-.806a6.507 6.507 0 0 0-4.436 5.43h3.334zm-3.334 1.5a6.507 6.507 0 0 0 4.436 5.43 7.974 7.974 0 0 1-.33-.806c-.433-1.238-.71-2.853-.772-4.624H1.543zm4.835 0c.061 1.633.318 3.074.687 4.129.214.61.451 1.05.677 1.323.202.244.336.29.391.297l.044-.001c.06-.01.19-.061.385-.296.226-.273.463-.713.676-1.323.37-1.055.626-2.496.687-4.129H6.378zm5.048 0c-.061 1.771-.339 3.386-.772 4.624-.082.235-.171.46-.268.674a6.506 6.506 0 0 0 4.071-5.298h-3.03zm3.031-1.5a6.507 6.507 0 0 0-4.071-5.298c.097.214.186.44.268.674.433 1.238.711 2.853.772 4.624h3.031z'></path>
+  </svg>
+);
+
+export const OrderListIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={{ ...ControlStyle, height: '1.2rem', ...(props.style || {}) }}
+  >
+    <path d='M15 14.5H5V13h10v1.5zm0-5.75H5v-1.5h10v1.5zM15 3H5V1.5h10V3zM3 3H1V1.5h2V3zm0 11.5H1V13h2v1.5zm0-5.75H1v-1.5h2v1.5z'></path>
+  </svg>
+);
+
+export const OrderCompactIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={{ ...ControlStyle, height: '1.2rem', ...(props.style || {}) }}
+  >
+    <path d='M15.5 13.5H.5V12h15v1.5zm0-4.75H.5v-1.5h15v1.5zm0-4.75H.5V2.5h15V4z'></path>
+  </svg>
+);
+
+export const CloseIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={{ ...ControlStyle, height: '1.2rem' }}
+  >
+    <path d='M2.47 2.47a.75.75 0 0 1 1.06 0L8 6.94l4.47-4.47a.75.75 0 1 1 1.06 1.06L9.06 8l4.47 4.47a.75.75 0 1 1-1.06 1.06L8 9.06l-4.47 4.47a.75.75 0 0 1-1.06-1.06L6.94 8 2.47 3.53a.75.75 0 0 1 0-1.06Z'></path>
+  </svg>
+);
+
+export const CloseIcon2 = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon'
+    style={{ ...ControlStyle, height: '0.75rem' }}
+  >
+    <path d='M2.47 2.47a.75.75 0 0 1 1.06 0L8 6.94l4.47-4.47a.75.75 0 1 1 1.06 1.06L9.06 8l4.47 4.47a.75.75 0 1 1-1.06 1.06L8 9.06l-4.47 4.47a.75.75 0 0 1-1.06-1.06L6.94 8 2.47 3.53a.75.75 0 0 1 0-1.06Z'></path>
+  </svg>
+);
+
+export const VerifiedIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    style={{ ...ControlStyle, height: '1.2rem', fill: '#0c67d3', color: 'white' }}
+  >
+    <path d='M10.814.5a1.658 1.658 0 0 1 2.372 0l2.512 2.572 3.595-.043a1.658 1.658 0 0 1 1.678 1.678l-.043 3.595 2.572 2.512c.667.65.667 1.722 0 2.372l-2.572 2.512.043 3.595a1.658 1.658 0 0 1-1.678 1.678l-3.595-.043-2.512 2.572a1.658 1.658 0 0 1-2.372 0l-2.512-2.572-3.595.043a1.658 1.658 0 0 1-1.678-1.678l.043-3.595L.5 13.186a1.658 1.658 0 0 1 0-2.372l2.572-2.512-.043-3.595a1.658 1.658 0 0 1 1.678-1.678l3.595.043L10.814.5zm6.584 9.12a1 1 0 0 0-1.414-1.413l-6.011 6.01-1.894-1.893a1 1 0 0 0-1.414 1.414l3.308 3.308 7.425-7.425z'></path>
+  </svg>
+);
+
+export const ExpandOutIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M21.707 2.293a1 1 0 0 1 0 1.414L17.414 8h1.829a1 1 0 0 1 0 2H14V4.757a1 1 0 1 1 2 0v1.829l4.293-4.293a1 1 0 0 1 1.414 0zM2.293 21.707a1 1 0 0 1 0-1.414L6.586 16H4.757a1 1 0 0 1 0-2H10v5.243a1 1 0 0 1-2 0v-1.829l-4.293 4.293a1 1 0 0 1-1.414 0z'></path>
+  </svg>
+);
+
+export const SpeakerIcon = (props: any) => (
+  <svg {...props} data-encore-id='icon' role='img' aria-hidden='true' viewBox='0 0 16 16'>
+    <path d='M10.016 1.125A.75.75 0 0 0 8.99.85l-6.925 4a3.639 3.639 0 0 0 0 6.299l6.925 4a.75.75 0 0 0 1.125-.65v-13a.75.75 0 0 0-.1-.375zM11.5 5.56a2.75 2.75 0 0 1 0 4.88V5.56z'></path>
+    <path d='M16 8a5.752 5.752 0 0 1-4.5 5.614v-1.55a4.252 4.252 0 0 0 0-8.127v-1.55A5.752 5.752 0 0 1 16 8z'></path>
+  </svg>
+);
+
+export const AddToLibrary = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    width='24'
+    height='24'
+    stroke='#b3b3b3'
+    fill='#b3b3b3'
+    strokeWidth='0'
+    className='hoverable-icon'
+    {...props}
+  >
+    <path d='M11.999 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm-11 9c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11-11-4.925-11-11z'></path>
+    <path d='M17.999 12a1 1 0 0 1-1 1h-4v4a1 1 0 1 1-2 0v-4h-4a1 1 0 1 1 0-2h4V7a1 1 0 1 1 2 0v4h4a1 1 0 0 1 1 1z'></path>
+  </svg>
+);
+
+export const AddedToLibrary = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 24 24'
+    width='24'
+    height='24'
+    stroke='#1cb955'
+    fill='#1cb955'
+    strokeWidth='0'
+    {...props}
+  >
+    <path d='M1 12C1 5.925 5.925 1 12 1s11 4.925 11 11-4.925 11-11 11S1 18.075 1 12zm16.398-2.38a1 1 0 0 0-1.414-1.413l-6.011 6.01-1.894-1.893a1 1 0 0 0-1.414 1.414l3.308 3.308 7.425-7.425z'></path>
+  </svg>
+);
+
+export const DeleteIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M5.25 3v-.917C5.25.933 6.183 0 7.333 0h1.334c1.15 0 2.083.933 2.083 2.083V3h4.75v1.5h-.972l-1.257 9.544A2.25 2.25 0 0 1 11.041 16H4.96a2.25 2.25 0 0 1-2.23-1.956L1.472 4.5H.5V3h4.75zm1.5-.917V3h2.5v-.917a.583.583 0 0 0-.583-.583H7.333a.583.583 0 0 0-.583.583zM2.986 4.5l1.23 9.348a.75.75 0 0 0 .744.652h6.08a.75.75 0 0 0 .744-.652L13.015 4.5H2.985z'></path>
+  </svg>
+);
+
+export const AddToQueueIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M16 15H2v-1.5h14V15zm0-4.5H2V9h14v1.5zm-8.034-6A5.484 5.484 0 0 1 7.187 6H13.5a2.5 2.5 0 0 0 0-5H7.966c.159.474.255.978.278 1.5H13.5a1 1 0 1 1 0 2H7.966zM2 2V0h1.5v2h2v1.5h-2v2H2v-2H0V2h2z'></path>
+  </svg>
+);
+
+export const AddToPlaylist = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M15.25 8a.75.75 0 0 1-.75.75H8.75v5.75a.75.75 0 0 1-1.5 0V8.75H1.5a.75.75 0 0 1 0-1.5h5.75V1.5a.75.75 0 0 1 1.5 0v5.75h5.75a.75.75 0 0 1 .75.75z'></path>
+  </svg>
+);
+
+export const ArtistIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M11.757 2.987A4.356 4.356 0 0 0 7.618 0a4.362 4.362 0 0 0-4.139 2.987 5.474 5.474 0 0 0-.22 1.894 5.604 5.604 0 0 0 1.4 3.312l.125.152a.748.748 0 0 1-.2 1.128l-2.209 1.275A4.748 4.748 0 0 0 0 14.857v1.142h8.734A5.48 5.48 0 0 1 8.15 14.5H1.517a3.245 3.245 0 0 1 1.6-2.454l2.21-1.275a2.25 2.25 0 0 0 .6-3.386l-.128-.153a4.112 4.112 0 0 1-1.05-2.44A4.053 4.053 0 0 1 4.89 3.47a2.797 2.797 0 0 1 1.555-1.713 2.89 2.89 0 0 1 3.293.691c.265.296.466.644.589 1.022.12.43.169.876.144 1.322a4.12 4.12 0 0 1-1.052 2.44l-.127.153a2.239 2.239 0 0 0-.2 2.58c.338-.45.742-.845 1.2-1.173 0-.162.055-.32.156-.447l.126-.152a5.598 5.598 0 0 0 1.4-3.312 5.499 5.499 0 0 0-.218-1.894zm3.493 3.771a.75.75 0 0 0-.75.75v3.496h-1a2.502 2.502 0 0 0-2.31 1.542 2.497 2.497 0 0 0 1.822 3.406A2.502 2.502 0 0 0 16 13.502V7.508a.75.75 0 0 0-.75-.75zm-.75 6.744a.998.998 0 0 1-1.707.707 1 1 0 0 1 .707-1.706h1v1z'></path>
+  </svg>
+);
+
+export const AlbumIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M8 1.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z'></path>
+    <path d='M8 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM5 8a3 3 0 1 1 6 0 3 3 0 0 1-6 0z'></path>
+  </svg>
+);
+
+export const MenuIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      className='hoverable-icon expand-icon'
+      style={SongExtraControlStyle}
+    >
+      <path d='M3 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm6.5 0a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zM16 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z'></path>
+    </svg>
+  );
+};
+
+export const EditIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      className='hoverable-icon expand-icon'
+      style={SongExtraControlStyle}
+    >
+      <path d='M11.838.714a2.438 2.438 0 0 1 3.448 3.448l-9.841 9.841c-.358.358-.79.633-1.267.806l-3.173 1.146a.75.75 0 0 1-.96-.96l1.146-3.173c.173-.476.448-.909.806-1.267l9.84-9.84zm2.387 1.06a.938.938 0 0 0-1.327 0l-9.84 9.842a1.953 1.953 0 0 0-.456.716L2 14.002l1.669-.604a1.95 1.95 0 0 0 .716-.455l9.841-9.841a.938.938 0 0 0 0-1.327z'></path>
+    </svg>
+  );
+};
+
+export const FollowIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      className='hoverable-icon expand-icon'
+      style={SongExtraControlStyle}
+    >
+      <path d='M4.765 1.423c-.42.459-.713.992-.903 1.554-.144.421-.264 1.173-.22 1.894.077 1.321.638 2.408 1.399 3.316v.002l.083.098c.611.293 1.16.696 1.621 1.183a2.244 2.244 0 0 0-.426-2.092l-.127-.153-.002-.001c-.612-.73-.997-1.52-1.051-2.442-.032-.54.066-1.097.143-1.323a2.85 2.85 0 0 1 .589-1.022 2.888 2.888 0 0 1 4.258 0c.261.284.456.628.59 1.022.076.226.175.783.143 1.323-.055.921-.44 1.712-1.052 2.442l-.002.001-.127.153a2.25 2.25 0 0 0 .603 3.39l2.209 1.275a3.248 3.248 0 0 1 1.605 2.457h-5.99a5.466 5.466 0 0 1-.594 1.5h8.259l-.184-1.665a4.75 4.75 0 0 0-2.346-3.591l-2.209-1.275a.75.75 0 0 1-.201-1.13l.126-.152h.001c.76-.909 1.32-1.995 1.399-3.316.043-.721-.077-1.473-.22-1.894a4.46 4.46 0 0 0-.644-1.24v-.002h-.002a4.388 4.388 0 0 0-6.728-.312zM2 12.5v-2h1.5v2h2V14h-2v2H2v-2H0v-1.5h2z'></path>
+    </svg>
+  );
+};
+
+export const UnfollowIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      fill='#1ed760'
+      className='hoverable-icon expand-icon'
+      style={SongExtraControlStyle}
+    >
+      <path d='M2.47 2.47a.75.75 0 0 1 1.06 0L8 6.94l4.47-4.47a.75.75 0 1 1 1.06 1.06L9.06 8l4.47 4.47a.75.75 0 1 1-1.06 1.06L8 9.06l-4.47 4.47a.75.75 0 0 1-1.06-1.06L6.94 8 2.47 3.53a.75.75 0 0 1 0-1.06Z'></path>
+    </svg>
+  );
+};
+
+export const AddIcon = (props: any) => {
+  return (
+    <svg
+      {...props}
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      fill='#1ed760'
+      className='hoverable-icon expand-icon'
+      style={SongExtraControlStyle}
+    >
+      <path d='M15.25 8a.75.75 0 0 1-.75.75H8.75v5.75a.75.75 0 0 1-1.5 0V8.75H1.5a.75.75 0 0 1 0-1.5h5.75V1.5a.75.75 0 0 1 1.5 0v5.75h5.75a.75.75 0 0 1 .75.75z'></path>
+    </svg>
+  );
+};
+
+export const NewPlaylistIcon = (props: any) => {
+  return (
+    <svg
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      fill='#1ed760'
+      className='hoverable-icon expand-icon'
+      style={SongExtraControlStyle}
+    >
+      <path d='M2 0v2H0v1.5h2v2h1.5v-2h2V2h-2V0H2zm11.5 2.5H8.244A5.482 5.482 0 0 0 7.966 1H15v11.75A2.75 2.75 0 1 1 12.25 10h1.25V2.5zm0 9h-1.25a1.25 1.25 0 1 0 1.25 1.25V11.5zM4 8.107a5.465 5.465 0 0 0 1.5-.593v5.236A2.75 2.75 0 1 1 2.75 10H4V8.107zM4 11.5H2.75A1.25 1.25 0 1 0 4 12.75V11.5z'></path>
+    </svg>
+  );
+};
+
+export const ArrowDownIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    fill='#1ed760'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='m14 6-6 6-6-6h12z'></path>
+  </svg>
+);
+
+export const ArrowUpIcon = () => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    fill='#1ed760'
+    className='hoverable-icon expand-icon'
+    style={SongExtraControlStyle}
+  >
+    <path d='M14 10 8 4l-6 6h12z'></path>
+  </svg>
+);
+
+export const GridIcon = (props: any) => (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    aria-hidden='true'
+    viewBox='0 0 16 16'
+    fill='#1ed760'
+    className='hoverable-icon expand-icon'
+    style={{ ...SongExtraControlStyle, ...(props.style || {}) }}
+  >
+    <path d='M1 1h6v6H1V1zm1.5 1.5v3h3v-3h-3zM1 9h6v6H1V9zm1.5 1.5v3h3v-3h-3zM9 1h6v6H9V1zm1.5 1.5v3h3v-3h-3zM9 9h6v6H9V9zm1.5 1.5v3h3v-3h-3z'></path>
+  </svg>
+);
+
+export const MobileIcon = (props: any) => {
+  return (
+    <svg
+      data-encore-id='icon'
+      role='presentation'
+      aria-hidden='true'
+      style={SongExtraControlStyle}
+      viewBox='0 0 16 16'
+      className={`hoverable-icon replay ${props.active ? 'active' : ''}`}
+      {...props}
+    >
+      <path d='M5 5a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V5zm3-1a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H8z'></path>
+      <path d='M13.25 16.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0z'></path>
+    </svg>
+  );
+};
+
+export const LaptopIcon = (props: any) => {
+  return (
+    <svg
+      data-encore-id='icon'
+      role='presentation'
+      aria-hidden='true'
+      style={SongExtraControlStyle}
+      viewBox='0 0 16 16'
+      className={`hoverable-icon replay ${props.active ? 'active' : ''}`}
+      {...props}
+    >
+      <path d='M0 21a1 1 0 0 1 1-1h22a1 1 0 1 1 0 2H1a1 1 0 0 1-1-1zM3 5a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V5zm3-1a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H6z'></path>
+    </svg>
+  );
+};
+
+export const PhoneIcon = (props: any) => {
+  return (
+    <svg
+      data-encore-id='icon'
+      role='img'
+      aria-hidden='true'
+      viewBox='0 0 16 16'
+      style={SongExtraControlStyle}
+      className={`hoverable-icon replay ${props.active ? 'active' : ''}`}
+    >
+      <path d='M8 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2z'></path>
+      <path d='M4.75 0A1.75 1.75 0 0 0 3 1.75v12.5c0 .966.784 1.75 1.75 1.75h6.5A1.75 1.75 0 0 0 13 14.25V1.75A1.75 1.75 0 0 0 11.25 0h-6.5zM4.5 1.75a.25.25 0 0 1 .25-.25h6.5a.25.25 0 0 1 .25.25v12.5a.25.25 0 0 1-.25.25h-6.5a.25.25 0 0 1-.25-.25V1.75z'></path>
+    </svg>
+  );
+};
+
+
+===== src/components/Layout/components/Header/index.tsx =====
+// Interfaces
+import { RefObject, useEffect, useState, type FC } from 'react';
+
+// Utils
+import tinycolor from 'tinycolor2';
+import { useAppSelector } from '../../../../store/store';
+import { getLibraryCollapsed, isRightLayoutOpen } from '../../../../store/slices/ui';
+
+interface PageHeaderProps {
+  children: any;
+  color: string;
+  activeHeider?: number;
+  hiddenContent?: boolean;
+  activeContentHeight?: number;
+  container: RefObject<HTMLDivElement | null>;
+  sectionContainer?: RefObject<HTMLDivElement | null>;
+}
+
+export const PageHeader: FC<PageHeaderProps> = ({
+  color,
+  children,
+  container,
+  hiddenContent,
+  sectionContainer,
+  activeHeider = 260,
+  activeContentHeight = 260,
+}) => {
+  const [headerWidth, setHeaderWidth] = useState(0);
+  const [activeHeader, setActiveHeader] = useState(false);
+
+  const rightLayoutOpen = useAppSelector(isRightLayoutOpen);
+  const libraryCollapsed = useAppSelector(getLibraryCollapsed);
+
+  useEffect(() => {
+    const ref = container.current;
+    const handleScroll = () => {
+      if (ref) {
+        setActiveHeader(ref.scrollTop > activeHeider);
+      }
+    };
+    ref?.addEventListener('scroll', handleScroll);
+    return () => {
+      window.onresize = null;
+      ref?.removeEventListener('scroll', handleScroll);
+    };
+  }, [container, activeHeider, activeContentHeight]);
+
+  useEffect(() => {
+    const ref = sectionContainer?.current;
+    if (ref) {
+      const observer = new ResizeObserver((entries) => {
+        setHeaderWidth(entries[0].contentRect.width);
+      });
+      observer.observe(ref);
+      return () => ref && observer.unobserve(ref);
+    }
+  }, [sectionContainer, libraryCollapsed, rightLayoutOpen]);
+
+  return (
+    <div
+      style={{
+        overflow: 'auto',
+        position: 'relative',
+        background: `linear-gradient(180deg, transparent 0px, ${color} 80%), url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=")`,
+      }}
+    >
+      <div
+        className={`nav-header ${activeHeader ? 'active' : ''}`}
+        style={{
+          width: headerWidth,
+          opacity: !headerWidth ? 0 : 1,
+          backgroundColor: !activeHeader ? 'transparent' : tinycolor(color).darken(2).toRgbString(),
+        }}
+      >
+        <div className='nav-header-content' style={{ minHeight: 36 }}>
+          <div>{!hiddenContent || activeHeader ? children : null}</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+===== src/components/Layout/components/Library/AddPlaylistButton.tsx =====
+// Components
+import { Dropdown, message } from 'antd';
+import { AddIcon, NewPlaylistIcon } from '../../../Icons';
+
+// Utils
+import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// I18n
+import { useTranslation } from 'react-i18next';
+
+// Services
+import { playlistService } from '../../../../services/playlists';
+
+// Redux
+import { fetchMyPlaylists } from '../../../../store/slices/yourLibrary';
+import { useAppDispatch, useAppSelector } from '../../../../store/store';
+import { uiActions } from '../../../../store/slices/ui';
+
+export const AddPlaylistButton = memo(() => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const user = useAppSelector(
+    (state) => state.auth.user,
+    (prev, next) => prev?.id === next?.id
+  );
+
+  const { t } = useTranslation(['navbar']);
+
+  const onClick = () => {
+    if (!user) return dispatch(uiActions.openLoginTooltip());
+    playlistService.createPlaylist(user?.id!, { name: t('My Playlist') }).then((playlist) => {
+      message.success(t('Playlist created'));
+      dispatch(fetchMyPlaylists());
+      navigate(`/playlist/${playlist.data.id}`);
+    });
+  };
+
+  return (
+    <Dropdown
+      placement='bottomRight'
+      trigger={['click']}
+      menu={{
+        items: [
+          {
+            key: 'create',
+            icon: <NewPlaylistIcon />,
+            label: t('Create a new Playlist'),
+            onClick,
+          },
+        ],
+      }}
+    >
+      <button className='addButton'>
+        <AddIcon />
+      </button>
+    </Dropdown>
+  );
+});
+
+
+===== src/components/Layout/components/Library/Filters.tsx =====
+import { memo, useMemo } from 'react';
+
+import Chip from '../../../Chip';
+import { Dropdown, Flex, Space } from 'antd';
+import { CloseIcon2, GridIcon, OrderCompactIcon, OrderListIcon, SearchIcon } from '../../../Icons';
+
+// Utils
+import { useTranslation } from 'react-i18next';
+
+// Redux
+import { useAppDispatch, useAppSelector } from '../../../../store/store';
+import { yourLibraryActions, YourLibraryState } from '../../../../store/slices/yourLibrary';
+
+const VIEW = ['COMPACT', 'LIST', 'GRID'] as const;
+
+const SearchSelector = memo(() => {
+  return (
+    <button className='addButton'>
+      <SearchIcon style={{ height: '1rem' }} />
+    </button>
+  );
+});
+
+const ViewSelector = memo(() => {
+  const dispatch = useAppDispatch();
+  const [t] = useTranslation('navbar');
+  const view = useAppSelector((state) => state.yourLibrary.view);
+
+  const items = VIEW.map((view) => ({
+    key: view,
+    label: t(view),
+    onClick: () => {
+      dispatch(yourLibraryActions.setView({ view }));
+    },
+  }));
+
+  return (
+    <Dropdown
+      placement='bottomRight'
+      className='viewSelector'
+      menu={{ items, selectedKeys: [view] }}
+      trigger={['click']}
+    >
+      <button className='order-button'>
+        <Space align='center'>
+          <span>{t(view)}</span>
+          {view === 'GRID' ? <GridIcon style={{ height: '1rem' }} /> : null}
+          {view === 'LIST' ? <OrderListIcon style={{ height: '1rem' }} /> : null}
+          {view === 'COMPACT' ? <OrderCompactIcon style={{ height: '1rem' }} /> : null}
+        </Space>
+      </button>
+    </Dropdown>
+  );
+});
+
+export const SearchArea = () => {
+  return (
+    <Flex align='center' justify='space-between' style={{ margin: '0px 10px', marginBottom: 10 }}>
+      <SearchSelector />
+      <ViewSelector />
+    </Flex>
+  );
+};
+
+const TypeSelector = memo(() => {
+  const dispatch = useAppDispatch();
+  const [t] = useTranslation('navbar');
+  const filter = useAppSelector((state) => state.yourLibrary.filter);
+
+  const hasAlbums = useAppSelector((state) => state.yourLibrary.myAlbums.length > 0);
+  const hasArtists = useAppSelector((state) => state.yourLibrary.myArtists.length > 0);
+  const hasPlaylists = useAppSelector((state) => state.yourLibrary.myPlaylists.length > 0);
+
+  const onClick = (filter: YourLibraryState['filter']) => {
+    dispatch(yourLibraryActions.setFilter({ filter }));
+  };
+
+  const items = useMemo(() => {
+    const data: { text: string; type: YourLibraryState['filter'] }[] = [];
+    if (hasPlaylists) data.push({ text: 'Playlists', type: 'PLAYLISTS' });
+    if (hasArtists) data.push({ text: 'Artists', type: 'ARTISTS' });
+    if (hasAlbums) data.push({ text: 'Albums', type: 'ALBUMS' });
+    return data;
+  }, [hasAlbums, hasArtists, hasPlaylists]);
+
+  if (!hasAlbums && !hasArtists && !hasPlaylists) return null;
+
+  return (
+    <Space>
+      {filter !== 'ALL' ? (
+        <Chip key='close' text={<CloseIcon2 />} onClick={() => onClick('ALL')} />
+      ) : null}
+
+      {items.map(({ text, type }) => {
+        if (filter === 'ALL' || type === filter) {
+          return (
+            <Chip
+              key={text}
+              text={t(text)}
+              active={filter === type}
+              onClick={() => onClick(type)}
+            />
+          );
+        }
+        return null;
+      })}
+    </Space>
+  );
+});
+
+export const LibraryFilters = () => {
+  return (
+    <div>
+      <div>
+        <TypeSelector />
+      </div>
+    </div>
+  );
+};
+
+
+===== src/components/Layout/components/Library/Language.tsx =====
+import { memo } from 'react';
+import { Space } from 'antd';
+import { WorldIcon } from '../../../Icons';
+
+// Redux
+import { languageActions } from '../../../../store/slices/language';
+import { useAppDispatch, useAppSelector } from '../../../../store/store';
+
+// Constants
+import { AVAILABLE_LANGUAGES } from '../../../../constants/languages';
+
+export const LanguageButton = memo(() => {
+  const dispatch = useAppDispatch();
+
+  const selectedLanguage = useAppSelector((state) => state.language.language);
+
+  const currentLanguage = AVAILABLE_LANGUAGES.find(
+    (language) => language.value === selectedLanguage
+  );
+
+  return (
+    <>
+      <button
+        className={`language-button`}
+        onClick={() => {
+          dispatch(languageActions.openLanguageModal());
+        }}
+      >
+        <Space align='center'>
+          <WorldIcon /> {currentLanguage?.label}
+        </Space>
+      </button>
+    </>
+  );
+});
+
+
+===== src/components/Layout/components/Library/Title.tsx =====
+// Components
+import { AddPlaylistButton } from './AddPlaylistButton';
+import { CloseIcon, LibraryCollapsedIcon, LibraryIcon } from '../../../Icons';
+
+// Utils
+import { memo } from 'react';
+
+// Components
+import { Flex, Space } from 'antd';
+import { Tooltip } from '../../../Tooltip';
+
+// I18n
+import { useTranslation } from 'react-i18next';
+
+// Redux
+import { getLibraryCollapsed, uiActions } from '../../../../store/slices/ui';
+import { useAppDispatch, useAppSelector } from '../../../../store/store';
+
+const isMobile = window.innerWidth < 900;
+
+const CloseButton = () => {
+  const dispatch = useAppDispatch();
+
+  return (
+    <div className='playing-section-close-button'>
+      <button
+        onClick={() => {
+          dispatch(uiActions.collapseLibrary());
+        }}
+      >
+        <CloseIcon />
+      </button>
+    </div>
+  );
+};
+
+export const LibraryTitle = memo(() => {
+  const dispatch = useAppDispatch();
+  const { t } = useTranslation(['navbar']);
+  const collapsed = useAppSelector(getLibraryCollapsed);
+
+  if (collapsed) {
+    return (
+      <Tooltip placement='right' title={t('Expand your library')}>
+        <button
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+          onClick={() => dispatch(uiActions.toggleLibrary())}
+        >
+          <LibraryCollapsedIcon />
+        </button>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Flex align='center' justify='space-between'>
+      <Space wrap align='center'>
+        <Tooltip placement='top' title={t('Collapse your library')}>
+          <button onClick={() => dispatch(uiActions.toggleLibrary())}>
+            <LibraryIcon />
+          </button>
+        </Tooltip>
+        <span className='Navigation-button'>{t('Your Library')}</span>
+      </Space>
+
+      {isMobile ? <CloseButton /> : <AddPlaylistButton />}
+    </Flex>
+  );
+});
+
+
+===== src/components/Layout/components/Library/index.tsx =====
+import YourLibrary from './list';
+
+// Redux
+import { useAppDispatch, useAppSelector } from '../../../../store/store';
+import { yourLibraryActions } from '../../../../store/slices/yourLibrary';
+
+// Interfaces
+import { useEffect, type FC } from 'react';
+
+interface LibraryProps {}
+
+export const Library: FC<LibraryProps> = () => {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => !!state.auth.user);
+
+  useEffect(() => {
+    if (user) {
+      dispatch(yourLibraryActions.fetchMyAlbums());
+      dispatch(yourLibraryActions.fetchMyArtists());
+      dispatch(yourLibraryActions.fetchMyPlaylists());
+    }
+  }, [user, dispatch]);
+
+  return (
+    <div style={{ height: '100%' }}>
+      <YourLibrary />
+    </div>
+  );
+};
+
+export default Library;
+
+
+===== src/components/Layout/components/Library/list/CompactCards.tsx =====
+import { SpeakerIcon } from '../../../../Icons';
+import { CardShortProps, CollapsedCard } from './ListCards';
+import { AlbumActionsWrapper } from '../../../../Actions/AlbumActions';
+import { ArtistActionsWrapper } from '../../../../Actions/ArtistActions';
+import { PlayistActionsWrapper } from '../../../../Actions/PlaylistActions';
+
+// Utils
+import { useNavigate } from 'react-router-dom';
+
+// Redux
+import { useAppDispatch, useAppSelector } from '../../../../../store/store';
+import { yourLibraryActions } from '../../../../../store/slices/yourLibrary';
+
+// Services
+import { playerService } from '../../../../../services/player';
+
+// Constants
+import { ARTISTS_DEFAULT_IMAGE, PLAYLIST_DEFAULT_IMAGE } from '../../../../../constants/spotify';
+
+// Interface
+import type { Album } from '../../../../../interfaces/albums';
+import type { Artist } from '../../../../../interfaces/artist';
+import type { Playlist } from '../../../../../interfaces/playlists';
+import { memo, useCallback } from 'react';
+import { getLibraryCollapsed, uiActions } from '../../../../../store/slices/ui';
+
+const CardCompact = (props: CardShortProps) => {
+  const { title, subtitle, isCurrent, onClick, onDoubleClick } = props;
+
+  return (
+    <button
+      onClick={onClick}
+      className='library-card'
+      style={{ borderRadius: 10 }}
+      onDoubleClick={onDoubleClick}
+    >
+      <div
+        style={{
+          width: '100%',
+          paddingLeft: 5,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ display: 'flex', gap: 5, width: '100%', alignItems: 'center' }}>
+          <h3
+            className='text-md font-semibold text-white'
+            style={{
+              fontSize: 15,
+              fontWeight: 100,
+              lineHeight: 2.1,
+              maxWidth: subtitle ? '60%' : undefined,
+              color: isCurrent ? '#1db954' : undefined,
+            }}
+          >
+            {title}
+          </h3>
+
+          <p
+            className='text-md font-semibold text-white'
+            style={{
+              fontSize: 13,
+              opacity: 0.7,
+              fontWeight: 400,
+            }}
+          >
+            {subtitle}
+          </p>
+        </div>
+
+        <div style={{ padding: 8 }}>
+          {isCurrent ? <SpeakerIcon fill='#1db954' height={13} width={13} /> : null}
+        </div>
+      </div>
+    </button>
+  );
+};
+
+const Card = memo((props: CardShortProps) => {
+  const collapsed = useAppSelector(getLibraryCollapsed);
+
+  const onDoubleClick = () => {
+    playerService.startPlayback({ context_uri: props.uri });
+  };
+
+  if (collapsed) {
+    return <CollapsedCard {...props} onDoubleClick={onDoubleClick} />;
+  }
+  return <CardCompact {...props} onDoubleClick={onDoubleClick} />;
+});
+
+const ArtistCardShort = memo(({ artist }: { artist: Artist }) => {
+  const navigate = useNavigate();
+  const filter = useAppSelector((state) => state.yourLibrary.filter);
+  const contextUri = useAppSelector((state) => state.spotify.state?.context.uri);
+
+  const onClick = useCallback(() => {
+    navigate(`/artist/${artist.id}`);
+  }, [navigate, artist.id]);
+
+  return (
+    <ArtistActionsWrapper artist={artist} trigger={['contextMenu']}>
+      <div>
+        <Card
+          rounded
+          uri={artist.uri}
+          onClick={onClick}
+          title={artist.name}
+          isCurrent={contextUri === artist.uri}
+          subtitle={filter === 'ALL' ? `• Artist` : ''}
+          image={artist?.images[0]?.url || ARTISTS_DEFAULT_IMAGE}
+        />
+      </div>
+    </ArtistActionsWrapper>
+  );
+});
+
+const AlbumCardShort = memo(({ album }: { album: Album }) => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => state.auth.user?.id);
+  const filter = useAppSelector((state) => state.yourLibrary.filter);
+  const contextUri = useAppSelector((state) => state.spotify.state?.context.uri);
+
+  const onClick = useCallback(() => {
+    if (!userId) {
+      return dispatch(uiActions.openLoginModal(album.images[0].url));
+    }
+    navigate(`/album/${album.id}`);
+  }, [userId, navigate, album.id, album.images, dispatch]);
+
+  return (
+    <AlbumActionsWrapper album={album} trigger={['contextMenu']}>
+      <div>
+        <Card
+          uri={album.uri}
+          onClick={onClick}
+          title={album.name}
+          image={album.images[0].url}
+          isCurrent={contextUri === album.uri}
+          subtitle={filter === 'ALL' ? `• Album` : `• ${album.artists[0].name}`}
+        />
+      </div>
+    </AlbumActionsWrapper>
+  );
+});
+
+const PlaylistCardShort = memo(({ playlist }: { playlist: Playlist }) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const filter = useAppSelector((state) => state.yourLibrary.filter);
+  const contextUri = useAppSelector((state) => state.spotify.state?.context.uri);
+
+  const onClick = useCallback(() => {
+    navigate(`/playlist/${playlist.id}`);
+  }, [navigate, playlist.id]);
+
+  return (
+    <PlayistActionsWrapper
+      playlist={playlist}
+      trigger={['contextMenu']}
+      onRefresh={() => {
+        dispatch(yourLibraryActions.fetchMyPlaylists());
+      }}
+    >
+      <div>
+        <Card
+          onClick={onClick}
+          uri={playlist.uri}
+          title={playlist.name}
+          isCurrent={contextUri === playlist.uri}
+          subtitle={filter === 'ALL' ? `• Playlist` : ''}
+          image={playlist?.images?.length ? playlist?.images[0]?.url : PLAYLIST_DEFAULT_IMAGE}
+        />
+      </div>
+    </PlayistActionsWrapper>
+  );
+});
+
+export const CompactItemComponent = ({ item }: { item: Artist | Playlist | Album }) => {
+  if (item.type === 'artist') return <ArtistCardShort key={item.id} artist={item} />;
+  if (item.type === 'album') return <AlbumCardShort key={item.id} album={item} />;
+  return <PlaylistCardShort key={item.id} playlist={item} />;
+};
+
+
+===== src/components/Layout/components/Library/list/ListCards.tsx =====
+import { Tooltip } from '../../../../Tooltip';
+import { SpeakerIcon } from '../../../../Icons';
+import { AlbumActionsWrapper } from '../../../../Actions/AlbumActions';
+import { ArtistActionsWrapper } from '../../../../Actions/ArtistActions';
+import { PlayistActionsWrapper } from '../../../../Actions/PlaylistActions';
+
+// Utils
+import { useNavigate } from 'react-router-dom';
+
+// Services
+import { playerService } from '../../../../../services/player';
+
+// Redux
+import { useAppDispatch, useAppSelector } from '../../../../../store/store';
+import { yourLibraryActions } from '../../../../../store/slices/yourLibrary';
+
+// Constants
+import { ARTISTS_DEFAULT_IMAGE, PLAYLIST_DEFAULT_IMAGE } from '../../../../../constants/spotify';
+
+// Interface
+import type { Album } from '../../../../../interfaces/albums';
+import type { Artist } from '../../../../../interfaces/artist';
+import type { Playlist } from '../../../../../interfaces/playlists';
+import { memo, useCallback } from 'react';
+import { uiActions } from '../../../../../store/slices/ui';
+
+export interface CardShortProps {
+  uri: string;
+  image: string;
+  title: string;
+  subtitle: string;
+  rounded?: boolean;
+  disabled?: boolean;
+  isCurrent?: boolean;
+  onClick?: () => void;
+  onDoubleClick?: () => void;
+}
+
+const Play = (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    width={26}
+    height={26}
+    fill='white'
+    aria-hidden='true'
+    className='Svg-sc-ytk21e-0 bneLcE zOsKPnD_9x3KJqQCSmAq'
+    viewBox='0 0 24 24'
+  >
+    <path d='m7.05 3.606 13.49 7.788a.7.7 0 0 1 0 1.212L7.05 20.394A.7.7 0 0 1 6 19.788V4.212a.7.7 0 0 1 1.05-.606z'></path>
+  </svg>
+);
+
+const Pause = (
+  <svg
+    data-encore-id='icon'
+    role='img'
+    width={26}
+    height={26}
+    fill='white'
+    aria-hidden='true'
+    className='Svg-sc-ytk21e-0 bneLcE zOsKPnD_9x3KJqQCSmAq'
+    viewBox='0 0 24 24'
+  >
+    <path d='M5.7 3a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7H5.7zm10 0a.7.7 0 0 0-.7.7v16.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V3.7a.7.7 0 0 0-.7-.7h-2.6z'></path>
+  </svg>
+);
+
+export const CollapsedCard = (props: CardShortProps) => {
+  const { image, title, subtitle, onClick } = props;
+
+  return (
+    <Tooltip
+      placement='right'
+      title={
+        <div>
+          <p>{title}</p>
+          <p style={{ fontSize: 13, color: 'gray', fontWeight: 400 }}>{subtitle}</p>
+        </div>
+      }
+    >
+      <button
+        onClick={onClick}
+        className='library-card collapsed'
+        onDoubleClick={props.onDoubleClick}
+        style={{ borderRadius: 10, display: 'flex', justifyContent: 'center' }}
+      >
+        <div className={`image h-full items-center ${props.rounded ? 'rounded' : ''}`}>
+          <div className='image-container'>
+            <img src={image} alt='' style={{ width: 52, height: 52 }} />
+          </div>
+        </div>
+      </button>
+    </Tooltip>
+  );
+};
+
+const CardList = (props: CardShortProps) => {
+  const { image, title, subtitle, isCurrent, onClick, disabled } = props;
+
+  const isPlaying = useAppSelector((state) => !state.spotify.state?.paused);
+
+  const button = disabled ? null : (
+    <button
+      className='image-button'
+      onClick={async (e) => {
+        if (e && e.stopPropagation) {
+          e.stopPropagation();
+        }
+        if (isCurrent && isPlaying) {
+          return playerService.pausePlayback();
+        }
+        return playerService.startPlayback(!isCurrent ? { context_uri: props.uri } : undefined);
+      }}
+    >
+      {isCurrent && isPlaying ? Pause : Play}
+    </button>
+  );
+
+  return (
+    <button
+      onClick={onClick}
+      className='library-card'
+      style={{ borderRadius: 10 }}
+      onDoubleClick={props.onDoubleClick}
+    >
+      <div className={`image p-2 h-full items-center ${props.rounded ? 'rounded' : ''}`}>
+        <div style={{ position: 'relative' }}>
+          <div>
+            <img
+              src={image}
+              alt='song cover'
+              className='rounded-md'
+              style={{ width: 52, height: 52 }}
+            />
+          </div>
+          {button}
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '100%',
+        }}
+      >
+        <div id='playlist-song-and-artist-name'>
+          <h3
+            className='text-md font-semibold text-white'
+            style={{
+              fontSize: 15,
+              marginBottom: -5,
+              color: isCurrent ? '#1db954' : undefined,
+              fontWeight: 100,
+            }}
+          >
+            {title}
+          </h3>
+
+          <p
+            className='text-md font-semibold text-white'
+            style={{
+              fontSize: 13,
+              opacity: 0.7,
+              fontWeight: 400,
+            }}
+          >
+            {subtitle}
+          </p>
+        </div>
+
+        <div style={{ padding: 8 }}>
+          {isCurrent ? <SpeakerIcon fill='#1db954' height={16} width={16} /> : null}
+        </div>
+      </div>
+    </button>
+  );
+};
+
+const Card = memo((props: CardShortProps) => {
+  const collapsed = useAppSelector((state) => state.ui.libraryCollapsed);
+
+  const onDoubleClick = () => {
+    playerService.startPlayback({ context_uri: props.uri });
+  };
+
+  if (collapsed) {
+    return <CollapsedCard {...props} onDoubleClick={onDoubleClick} />;
+  }
+  return <CardList {...props} onDoubleClick={onDoubleClick} />;
+});
+
+export const ArtistCardShort = ({ artist }: { artist: Artist }) => {
+  const navigate = useNavigate();
+  const contextUri = useAppSelector((state) => state.spotify.state?.context.uri);
+
+  const onClick = () => {
+    navigate(`/artist/${artist.id}`);
+  };
+
+  return (
+    <ArtistActionsWrapper artist={artist} trigger={['contextMenu']}>
+      <div>
+        <Card
+          rounded
+          uri={artist.uri}
+          subtitle='Artist'
+          onClick={onClick}
+          title={artist.name}
+          isCurrent={contextUri === artist.uri}
+          image={artist?.images[0]?.url || ARTISTS_DEFAULT_IMAGE}
+        />
+      </div>
+    </ArtistActionsWrapper>
+  );
+};
+
+export const AlbumCardShort = memo(({ album }: { album: Album }) => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => state.auth.user?.id);
+  const contextUri = useAppSelector((state) => state.spotify.state?.context.uri);
+
+  const onClick = useCallback(() => {
+    if (!userId) {
+      return dispatch(uiActions.openLoginModal(album.images[0].url));
+    }
+    navigate(`/album/${album.id}`);
+  }, [userId, navigate, album.id, album.images, dispatch]);
+
+  return (
+    <AlbumActionsWrapper album={album} trigger={['contextMenu']}>
+      <div>
+        <Card
+          uri={album.uri}
+          onClick={onClick}
+          title={album.name}
+          image={album.images[0].url}
+          subtitle={album.artists[0].name}
+          isCurrent={contextUri === album.uri}
+        />
+      </div>
+    </AlbumActionsWrapper>
+  );
+});
+
+const PlaylistCardShort = memo(({ playlist }: { playlist: Playlist }) => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const contextUri = useAppSelector((state) => state.spotify.state?.context.uri);
+
+  const onClick = () => {
+    if (playlist.id === 'liked-songs') {
+      navigate('/collection/tracks');
+      return;
+    }
+    navigate(`/playlist/${playlist.id}`);
+  };
+
+  return (
+    <PlayistActionsWrapper
+      playlist={playlist}
+      trigger={['contextMenu']}
+      onRefresh={() => {
+        dispatch(yourLibraryActions.fetchMyPlaylists());
+      }}
+    >
+      <div>
+        <Card
+          onClick={onClick}
+          uri={playlist.uri}
+          title={playlist.name}
+          disabled={!playlist.tracks?.total}
+          isCurrent={contextUri === playlist.uri}
+          subtitle={`Playlist • ${playlist.owner?.display_name}`}
+          image={playlist?.images?.length ? playlist?.images[0]?.url : PLAYLIST_DEFAULT_IMAGE}
+        />
+      </div>
+    </PlayistActionsWrapper>
+  );
+});
+
+export const ListItemComponent = ({ item }: { item: Artist | Playlist | Album }) => {
+  if (item.type === 'artist') return <ArtistCardShort key={item.id} artist={item} />;
+  if (item.type === 'album') return <AlbumCardShort key={item.id} album={item} />;
+  return <PlaylistCardShort key={item.id} playlist={item} />;
+};
+
+
+===== src/components/Layout/components/Library/list/index.tsx =====
+// Components
+import { Col } from 'antd';
+import { LibraryTitle } from '../Title';
+import { ListItemComponent } from './ListCards';
+import { CompactItemComponent } from './CompactCards';
+import { LibraryFilters, SearchArea } from '../Filters';
+
+// Redux
+import { useAppDispatch, useAppSelector } from '../../../../../store/store';
+import { getLibraryItems } from '../../../../../store/slices/yourLibrary';
+import { GridItemComponent } from '../../../../Lists/list';
+import { memo, useMemo } from 'react';
+import { isActiveOnOtherDevice } from '../../../../../store/slices/spotify';
+import useIsMobile from '../../../../../utils/isMobile';
+import { getLibraryCollapsed, uiActions } from '../../../../../store/slices/ui';
+import { LanguageButton } from '../Language';
+import { LibraryLoginInfo } from './loginInfo';
+
+const COLLAPSED_STYLE = {
+  overflowY: 'scroll',
+  height: '100%',
+} as const;
+
+const YourLibrary = () => {
+  const collapsed = useAppSelector(getLibraryCollapsed);
+  const user = useAppSelector((state) => !!state.auth.user);
+  const activeOnOtherDevice = useAppSelector(isActiveOnOtherDevice);
+
+  const heightValue = useMemo(() => {
+    let value = 310;
+    if (!user) value = 270;
+    if (collapsed) value = 218;
+    if (activeOnOtherDevice) value += 50;
+    return value;
+  }, [user, collapsed, activeOnOtherDevice]);
+
+  return (
+    <div className={`Navigation-section library ${!collapsed ? 'open' : ''}`}>
+      <LibraryTitle />
+
+      {!collapsed && user ? <LibraryFilters /> : null}
+
+      <div className='library-list-container'>
+        <Col style={collapsed ? {} : COLLAPSED_STYLE}>
+          <div
+            className='library-list'
+            style={{
+              overflowY: 'scroll',
+              overflowX: 'hidden',
+              height: `calc(100vh - ${heightValue}px`,
+            }}
+          >
+            {!user ? <AnonymousContent /> : <LoggedContent />}
+          </div>
+
+          {!user ? (
+            <div style={{ marginLeft: 10 }}>
+              <LanguageButton />
+            </div>
+          ) : null}
+        </Col>
+      </div>
+    </div>
+  );
+};
+
+const AnonymousContent = () => {
+  return <LibraryLoginInfo />;
+};
+
+const LoggedContent = memo(() => {
+  const isMobile = useIsMobile();
+  const dispatch = useAppDispatch();
+  const items = useAppSelector(getLibraryItems);
+  const collapsed = useAppSelector(getLibraryCollapsed);
+  const view = useAppSelector((state) => state.yourLibrary.view);
+
+  return (
+    <>
+      {!collapsed ? <SearchArea /> : null}
+
+      <div
+        className={`${collapsed ? 'collapsed' : ''} ${
+          !collapsed && view === 'GRID' ? 'grid-view' : ''
+        }`}
+      >
+        {items.map((item) => {
+          if (collapsed) return <ListItemComponent key={item.id} item={item} />;
+
+          return (
+            <div
+              key={item.id}
+              onClick={isMobile ? () => dispatch(uiActions.collapseLibrary()) : undefined}
+            >
+              {view === 'LIST' ? <ListItemComponent key={item.id} item={item} /> : ''}
+              {view === 'COMPACT' ? <CompactItemComponent key={item.id} item={item} /> : ''}
+              {view === 'GRID' ? <GridItemComponent key={item.id} item={item} /> : ''}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+});
+
+export default YourLibrary;
+
+
+===== src/components/Layout/components/Library/list/loginInfo.tsx =====
+import { memo, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { Popconfirm } from 'antd';
+import { WhiteButton } from '../../../../Button';
+import { DetailsCard } from '../../NowPlaying/Details/card';
+
+// Redux
+import { uiActions } from '../../../../../store/slices/ui';
+import { loginToSpotify } from '../../../../../store/slices/auth';
+import { useAppDispatch, useAppSelector } from '../../../../../store/store';
+
+export const LibraryLoginInfo = memo(() => {
+  const [t] = useTranslation(['home']);
+  const dispatch = useAppDispatch();
+  const tooltipOpen = useAppSelector((state) => state.ui.loginTooltipOpen);
+
+  const onClose = useCallback(() => {
+    dispatch(uiActions.closeLoginTooltip());
+  }, [dispatch]);
+
+  const onConfirm = useCallback(() => {
+    return dispatch(loginToSpotify(false));
+  }, [dispatch]);
+
+  useEffect(() => {
+    return () => {
+      onClose();
+    };
+  }, [onClose]);
+
+  return (
+    <Popconfirm
+      icon={null}
+      open={tooltipOpen}
+      placement='left'
+      onCancel={onClose}
+      okText={t(`Log In`)}
+      onConfirm={onConfirm}
+      cancelText={t(`Not now`)}
+      title={t('Create a playlist')}
+      cancelButtonProps={{ type: 'text' }}
+      okButtonProps={{ className: 'white-button small' }}
+      description={t('Log in to create and share playlists.')}
+    >
+      <div style={{ marginRight: -5 }}>
+        <DetailsCard title={t(`Let's access your library`)}>
+          <p style={{ fontWeight: 400, color: '#fff' }}>
+            {t(`Log In to access all the features of the app`)}
+          </p>
+          <div style={{ marginTop: 20, marginBottom: 30, position: 'relative' }}>
+            <WhiteButton
+              size='small'
+              title={t('Log In')}
+              onClick={() => dispatch(loginToSpotify(false))}
+            />
+          </div>
+        </DetailsCard>
+      </div>
+    </Popconfirm>
+  );
+});
+
+
+===== src/components/Layout/components/LoginFooter/index.tsx =====
+import { memo } from 'react';
+import { WhiteButton } from '../../../Button';
+import { useTranslation } from 'react-i18next';
+import { useAppDispatch } from '../../../../store/store';
+import { loginToSpotify } from '../../../../store/slices/auth';
+import useIsMobile from '../../../../utils/isMobile';
+
+export const LoginFooter = memo(() => {
+  const isMobile = useIsMobile();
+  const [t] = useTranslation(['home']);
+  const dispatch = useAppDispatch();
+
+  if (isMobile) return null;
+
+  return (
+    <div className='login-footer' style={{ margin: '0px 10px' }}>
+      <div className='login-container'>
+        <div>
+          <p className='title'>{t('Preview')}</p>
+          <p className='description'>{t('Log In to access all the features of the app')}.</p>
+        </div>
+
+        <WhiteButton title={t('Log In')} onClick={() => dispatch(loginToSpotify(false))} />
+      </div>
+    </div>
+  );
+});
+
+
+===== src/components/Layout/components/Navbar/ForwardBackwardsButton.tsx =====
+// import { useNavigate } from 'react-router-dom';
+
+import { useTranslation } from 'react-i18next';
+import { Tooltip } from '../../../Tooltip';
+import { useNavigate } from 'react-router-dom';
+
+// import { Tooltip } from '../../../Tooltip';
+// import { useTranslation } from 'react-i18next';
+
+const ForwardBackwardsButton = ({ flip }: { flip: boolean }) => {
+  const navigate = useNavigate();
+  const [t] = useTranslation(['navigation']);
+
+  const navigateBack = () => {
+    navigate(-1);
+  };
+
+  const navigateForward = () => {
+    navigate(1);
+  };
+
+  return (
+    <Tooltip title={flip ? t('Go back') : t('Go forward')}>
+      <button
+        className='bg-black p-2 rounded-full h-4/6 aspect-square h-8 mobile-visible'
+        onClick={flip ? navigateBack : navigateForward}
+      >
+        <img
+          alt={flip ? 'Backwards' : 'Forward'}
+          src={`${process.env.PUBLIC_URL}/images/forward.svg`}
+          className={`w-full h-full ${flip ? 'rotate-180' : ''}`}
+        />
+      </button>
+    </Tooltip>
+  );
+};
+
+export default ForwardBackwardsButton;
+
+
+===== src/components/Layout/components/Navbar/Header.tsx =====
+import { useCallback } from 'react';
+
+import { Popconfirm, Space } from 'antd';
+import { Link } from 'react-router-dom';
+import { CloseIcon } from '../../../Icons';
+import { WhiteButton } from '../../../Button';
+
+// Utils
+import { useTranslation } from 'react-i18next';
+
+// Redux
+import { uiActions } from '../../../../store/slices/ui';
+import { loginToSpotify } from '../../../../store/slices/auth';
+import { useAppDispatch, useAppSelector } from '../../../../store/store';
+
+// Constants
+import { ARTISTS_DEFAULT_IMAGE } from '../../../../constants/spotify';
+import useIsMobile from '../../../../utils/isMobile';
+
+const LoginButton = () => {
+  const { t } = useTranslation(['home']);
+  const dispatch = useAppDispatch();
+  const tooltipOpen = useAppSelector((state) => state.ui.loginButtonOpen);
+
+  const onClose = useCallback(() => {
+    dispatch(uiActions.closeLoginButton());
+  }, [dispatch]);
+
+  return (
+    <Popconfirm
+      icon={null}
+      open={tooltipOpen}
+      onCancel={onClose}
+      placement='bottomLeft'
+      rootClassName='login-tooltip'
+      cancelText={<CloseIcon />}
+      title={t('You’re logged out')}
+      cancelButtonProps={{ type: 'text' }}
+      okButtonProps={{ className: 'white-button small' }}
+      description={t('Log in to add this to your Liked Songs.')}
+    >
+      <WhiteButton title={t('Log In')} onClick={() => dispatch(loginToSpotify(false))} />
+    </Popconfirm>
+  );
+};
+
+const Header = ({ opacity }: { opacity: number; title?: string }) => {
+  const isMobile = useIsMobile();
+  const { t } = useTranslation(['navbar']);
+
+  const user = useAppSelector(
+    (state) => state.auth.user,
+    (prev, next) => prev?.id === next?.id
+  );
+
+  return (
+    <div
+      className={`flex r-0 w-full flex-row items-center justify-between bg-gray-900 rounded-t-md z-10`}
+      style={{ backgroundColor: `rgba(12, 12, 12, ${opacity}%)` }}
+    >
+      <div className='flex flex-row items-center'>
+        <Space>
+          {!isMobile ? (
+            <a
+              target='_blank'
+              rel='noreferrer'
+              className='contact-me'
+              href='https://github.com/francoborrelli/spotify-react-web-client'
+            >
+              <span>{t('Source code')}</span>
+            </a>
+          ) : null}
+
+          {/*
+          <div className='news'>
+            <News />
+          </div> */}
+
+          {user ? (
+            <div className='avatar-container'>
+              <Link to={`/users/${user!.id}`}>
+                <img
+                  className='avatar'
+                  id='user-avatar'
+                  alt='User Avatar'
+                  style={{ marginTop: -1 }}
+                  src={
+                    user?.images && user.images.length ? user.images[0].url : ARTISTS_DEFAULT_IMAGE
+                  }
+                />
+              </Link>
+            </div>
+          ) : (
+            <LoginButton />
+          )}
+        </Space>
+      </div>
+    </div>
+  );
+};
+
+export default Header;
+
+
+===== src/components/Layout/components/Navbar/HistoryNavigation.tsx =====
+import { Space } from 'antd';
+
+import NavigationButton from './NavigationButton';
+import ForwardBackwardsButton from './ForwardBackwardsButton';
+
+import { useTranslation } from 'react-i18next';
+import { memo } from 'react';
+import { FaSpotify } from 'react-icons/fa6';
+
+const HistoryNavigation = memo(() => {
+  const { t } = useTranslation(['navbar']);
+  return (
+    <Space>
+      <NavigationButton
+        text={t('Source code')}
+        onClick={() => {
+          window.open('https://github.com/francoborrelli/portfolio', '_blank');
+        }}
+        icon={<FaSpotify size={25} fill='white' />}
+      />
+
+      <div className='flex flex-row items-center gap-2 h-full'>
+        <ForwardBackwardsButton flip />
+        <ForwardBackwardsButton flip={false} />
+      </div>
+    </Space>
+  );
+});
+
+export default HistoryNavigation;
+
+
+===== src/components/Layout/components/Navbar/NavigationButton.tsx =====
+import type { FC } from 'react';
+import { Tooltip } from '../../../Tooltip';
+
+interface NavigationButtonProps {
+  onClick: () => void;
+  text: string;
+  icon: React.ReactElement;
+}
+const NavigationButton: FC<NavigationButtonProps> = ({ onClick, text, icon }) => {
+  return (
+    <Tooltip placement='bottom' title={text}>
+      <button className='navigation-button' onClick={onClick}>
+        {icon}
+      </button>
+    </Tooltip>
+  );
+};
+
+export default NavigationButton;
+
+
+===== src/components/Layout/components/Navbar/Search.tsx =====
+import { Input, Space } from 'antd';
+import NavigationButton from './NavigationButton';
+import { ActiveHomeIcon, BrowseIcon, HomeIcon, SearchIcon } from '../../../Icons';
+
+// Utils
+import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useDebounce } from 'use-debounce';
+
+const INITIAL_VALUE = window.location.href.includes('/search/')
+  ? window.location.href.split('/').reverse()[0]
+  : '';
+
+function usePrevious(value: any) {
+  const ref = useRef(null);
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+export const Search = memo(() => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { t } = useTranslation(['navbar']);
+
+  const [inputValue, setInputValue] = useState<string>('');
+  const [debouncedValue] = useDebounce(inputValue, 600);
+  const prevValue = usePrevious(debouncedValue);
+
+  useEffect(() => {
+    if (debouncedValue !== '' && debouncedValue !== prevValue) {
+      navigate(`/search/${debouncedValue}`);
+    }
+  }, [debouncedValue, prevValue, navigate]);
+
+  const isHome = useMemo(() => location.pathname === '/', [location.pathname]);
+
+  return (
+    <Space size={10} align='center'>
+      <NavigationButton
+        text={t('Home')}
+        icon={isHome ? <ActiveHomeIcon /> : <HomeIcon />}
+        onClick={() => navigate('/')}
+      />
+
+      <Input
+        size='large'
+        className='search-input'
+        prefix={<SearchIcon />}
+        suffix={
+          <button
+            onClick={() => {
+              navigate('/search');
+            }}
+          >
+            <BrowseIcon />
+          </button>
+        }
+        defaultValue={INITIAL_VALUE}
+        onChange={(e) => {
+          setInputValue(e.target.value);
+        }}
+        placeholder={t('SearchPlaceholder')}
+      />
+    </Space>
+  );
+});
+
+
+===== src/components/Layout/components/Navbar/index.tsx =====
+import { Col, Row } from 'antd';
+import { memo } from 'react';
+import HistoryNavigation from './HistoryNavigation';
+import Header from './Header';
+import { Search } from './Search';
+
+export const Navbar = memo(() => {
+  return (
+    <Row
+      align='middle'
+      gutter={[16, 16]}
+      className='navbar'
+      justify='space-between'
+      style={{ margin: '0 5px' }}
+    >
+      <Col>
+        <HistoryNavigation />
+      </Col>
+
+      <Col span={0} md={12} lg={10} xl={8} style={{ textAlign: 'center' }}>
+        <Search />
+      </Col>
+
+      <Col>
+        <Header opacity={1} />
+      </Col>
+    </Row>
+  );
+});
+
+
+===== src/components/Layout/components/NowPlaying/Details/artist.tsx =====
+
+
+===== src/components/Layout/components/NowPlaying/Details/card.tsx =====
